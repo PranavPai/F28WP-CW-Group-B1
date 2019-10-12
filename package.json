@@ -1,0 +1,23 @@
+{
+  "name": "f28wp-cw-group-b1",
+  "version": "0.0.1",
+  "description": "A MMORPG game developed using JavaScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benjaminjacobreji/F28WP-CW-Group-B1.git"
+  },
+  "author": "Benjamin Jacob Reji (bjr5), Connor Marshall (cm66), Hitesh Manani (hm95), Waleed Hesham Rasheed (whr1), Pranav Pai (ppp1)",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/benjaminjacobreji/F28WP-CW-Group-B1/issues"
+  },
+  "homepage": "https://github.com/benjaminjacobreji/F28WP-CW-Group-B1#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
+}
