@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+ 
+<html>
+	<head>
+		<title>JavaScript Sprite Animation Tutorial</title>
+    </head>
+    
+	<body>		
+        <canvas id='canvas'>
+
+        </canvas>
+
+        <script>
+			//Width and height for canvas
+			var canvasWidth = 650; 
+			var canvasHeight = 350;
+			
+			//the with and height spritesheet used
+			var sheetWidth = 621; 
+			var sheetHeight = 68; 
+			
+			
+			var rows = 1; 
+			var cols = 9; 
+			
+			
+			// width of a single sprite 
+			var width = sheetWidth/cols; 
+			
+			 
+			var height = sheetHeight/rows; 
+			
+			//current frame tracker
+			var curFrame = 0; 
+			
+			//The total frame is 8 
+			var frameCount = 9; 
+			
+			//x and y coordinates to render the sprite 
+			var x=0;
+			var y=0; 
+			
+			//x and y coordinates of the canvas to get the single frame 
+			var srcX=0; 
+			var srcY=0; 
+			
+
+			
+			//Speed of the movement 
+			var speed = 10; 
+			
+			//Getting the canvas 
+			var canvas = document.getElementById('canvas');
+			
+			//setting width and height of the canvas 
+			canvas.width = canvasWidth;
+			canvas.height = canvasHeight; 
+			
+			//Establishing a context to the canvas 
+			var ctx = canvas.getContext("2d");
+			
+			//Creating an Image object for our character 
+			var character = new Image(); 
+			
+			//Setting the source to the image file 
+			character.src = "test_mainchar_walk_left.png";
+
+            function updateFrame()
+            {
+	//Updating the frame index 
+	        curFrame = ++curFrame % frameCount; 
+	
+	//Calculating the x coordinate for spritesheet 
+         	srcX = curFrame * width; 
+
+             ctx.clearRect(x,y,width,height);
+
+            }
+
+            function draw()
+            {
+	//Updating the frame 
+	            updateFrame();
+	//Drawing the image 
+	           ctx.drawImage(character,srcX,srcY,width,height,x,y,width,height);
+            }
+
+            setInterval(draw,100);
+
+
+            </script>
+
+    </body>
+    
+
+</html>
