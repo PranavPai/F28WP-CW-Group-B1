@@ -16,6 +16,37 @@
   <canvas id="gameCanvas" ></canvas></div>
   <script src="../js/movement.js"></script>
   <button onclick="location.href='../assets/environments/props/props_big_stone.png'" type="button">Canvas</button>
+
+
+  <script src="js/TileMap.js"></script>
+
+  <script>
+    var c = document.getElementById("gameCanvas");
+    var ctx = c.getContext("2d");
+    ctx.canvas.width  = window.innerWidth;
+    ctx.canvas.height = window.innerHeight;
+  </script>
+
+<style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0px;
+      border: 0;
+      overflow: hidden; /*  Disable scrollbars */
+      display: block;  /* No floating content on sides */
+    }
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      margin: 0px;
+      border: 0;
+      overflow: hidden; /*  Disable scrollbars */
+      display: block;  /* No floating content on sides */
+    }
+    
+    </style>
+
 </body>
 
 </html>

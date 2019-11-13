@@ -18,6 +18,43 @@ class Database {
         console.error(`Database connection error: ${err}`)
       })
   }
+
+
+  addPlayer(player) {
+    player.save()
+      .then(doc => {
+        console.log(doc)
+      })
+      .catch(err => {
+        console.error(err.code)
+      })
+  }
+
+  getPlayer(passed_username) {
+    Player.find({
+        username: passed_username
+      })
+      .then(doc => {
+        // console.log(doc)
+        return doc
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  }
+
+  removePlayer(passed_username) {
+    Player.findOneAndRemove({
+        username: passed_username
+      })
+      .then(response => {
+        console.log(response)
+      })
+      .catch(err => {
+        console.error(err)
+      });
+  }
+
 }
 
 module.exports = new Database()
