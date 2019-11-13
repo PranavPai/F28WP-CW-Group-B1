@@ -1,5 +1,5 @@
 var context = null;
-var tileW = 10, tileH = 10;
+var tileW = 50, tileH = 50;
 var mapW = 100, mapH = 100;
 
 var currentSecond = 0, frameCount = 0, frameLastSecond = 0;
@@ -118,7 +118,45 @@ var keyDown = {
     40 : false
 };
 
+
+
 var player = new Character();
+
+// Camera
+var viewPort = {
+    screanSize : [0,0], // this will be set to the size of the canvase.
+    startTile  : [0,0], // pixle pos of the top left most tile.
+    endTile    : [0,0], // pixle pos of the bottom right most tile.
+    offset     : [0,0], // offset in pixles of the camera to the middle of the canvase.
+    update     : function(px,py)
+    {
+        this.offset[0] = Math.floor((this.screanSize[0]/2) - px);
+        this.offset[1] = Math.floor((this.screanSize[1]/2) - py);
+
+        // find the that will be in the middle of the screan, THIS SHOULD BE THE PLAER.
+        var tile = [
+            Math.floor(px / tileW),
+            Math.floor(py / tileH)
+        ];
+
+        // get the pixle pos of starting tile.
+        this.startTile[0] = tile[0] - 1 - Math.ceil((this.screanSize[0]/2) / tileW);
+        this.startTile[1] = tile[1] - 1 - Math.ceil((this.screanSize[1]/2) / tileH);
+
+        if (this.startTile[0] < 0 )
+            this.startTile[0] = 0;
+        if (this.startTile[1] < 0)
+            this.startTile[1] = 0;
+
+        this.endTile[0] = tile[0] + 1 + Math.ceil((this.screanSize[0]/2) / tileW);
+        this.endTile[1] = tile[1] + 1 + Math.ceil((this.screanSize[1]/2) / tileH);
+
+        if (this.endTile[0] >= mapW)
+            this.endTile[0] = mapW - 1;
+        if (this.endTile[1] >= mapH)
+            this.endTile[1] = mapH -1;
+    }
+}
 
 
 function Character()
@@ -135,8 +173,6 @@ Character.prototype.placeAt = function(x,y) {
         this.tilePosition[1] = y;
 
         gameMap[x][y] = 2;
-
-        console.log("DING: " + this.tilePosition);
     }
 };
 
@@ -154,8 +190,8 @@ window.onload = function(){
 
     player.placeAt(Math.floor(gameMap.length / 2), Math.floor(gameMap.length / 2));
 
-
-    context = this.document.getElementById('gameCanvas').getContext('2d');
+    var canvase = this.document.getElementById('gameCanvas');
+    context = canvase.getContext('2d');
     requestAnimationFrame(drawGame);
     context.font = "bold 10pt sans.serif";
 
@@ -163,21 +199,27 @@ window.onload = function(){
     mapW = gameMap[0].length;
     mapH = gameMap.length;
 
-    tileW = (tileW / this.mapW) * 50;
-    tileH = (tileH / this.mapH) * 50;
+    //tileW = (tileW / this.mapW) * 50;
+    //tileH = (tileH / this.mapH) * 50;
 
     window.addEventListener("keydown", function(e)
     {
          if (e.keyCode>=37 && e.keyCode<=40)
          {
             keyDown[e.keyCode] = true;
-            console.log("KeyDown: " + keyDown[e.keyCode]);
          }
     });
     window.addEventListener("keyup", function(e){
         if (e.keyCode >=37 && e.keyCode<=40)
             keyDown[e.keyCode] = false; 
     });
+
+    // Camera
+    this.viewPort.screanSize = [
+        canvase.width,
+        canvase.height
+    ];
+    // END Camera
 };
 
 function drawGame()
@@ -206,39 +248,46 @@ function drawGame()
 
         if (keyDown[38] && gameMap[posX][posY-1] == 0)
         { 
-            console.log("DING1");
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX,posY-1)
             player.timeLastMoved = Date.now();
         }
         else if (keyDown[40] &&  gameMap[posX][posY+1] == 0)
         { 
-            console.log("DING2");
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX,posY+1)
             player.timeLastMoved = Date.now();
         }
         else if (keyDown[37] &&  gameMap[posX-1][posY] == 0)
         { 
-            console.log("DING3");
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX-1,posY)
             player.timeLastMoved = Date.now();
         }
         else if (keyDown[39] &&  gameMap[posX+1][posY] == 0)
         { 
-            console.log("DING4");
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX+1,posY)
             player.timeLastMoved = Date.now();
         }
-
     }
 
+    // Camera
+    var ttp = TileToPixel(player.tilePosition[0], player.tilePosition[1]);
+    viewPort.update(
+        ttp[0] + (tileW / 2),
+        ttp[1] + (tileW / 2),
+    );
+
+    context.fillStyle = "#000000";
+    context.fillRect(0,0,viewPort.screanSize[0], viewPort.screanSize[1]);
+
+    // END Camera
+    // CAMERA: Change the range of the nested forloop to only happen within the screanSize.
     // draw the tiles that make up the gameMap.
-    for(var y = 0; y < mapH; y++)
+    for(var y = viewPort.startTile[1]; y < viewPort.endTile[1]; y++)
     {
-        for(var x = 0; x < mapW; x++)
+        for(var x = viewPort.startTile[0]; x < viewPort.endTile[0]; x++)
         {
             // need to repace the 1d array with a 2d array later.
             switch (gameMap[x][y]) // this will get use the correct pos in the 1d array
@@ -253,7 +302,8 @@ function drawGame()
                     context.fillStyle = "#18ad0a"; // else the tile is a path.   
             }
 
-            context.fillRect(x*tileW, y*tileH, tileW, tileH);
+            // CAMERA: added offset to the drawn rectangles.
+            context.fillRect(viewPort.offset[0] + x*tileW,viewPort.offset[1] + y*tileH, tileW, tileH);
         }
     }
     context.fillStyle = "#ff0000";
@@ -262,3 +312,10 @@ function drawGame()
     requestAnimationFrame(drawGame);
 }
 
+function TileToPixel(x,y)
+{
+    var pixelX = tileW * (x-1);
+    var pixelY = tileH * (y-1);
+    
+    return [pixelX, pixelY]
+}
