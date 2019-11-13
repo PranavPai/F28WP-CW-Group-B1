@@ -1,3 +1,9 @@
+/*  
+    *This scrip was created by Connor Marshall
+    *H00232766
+    *cm66  
+ */
+
 var context = null;
 var tileW = 50, tileH = 50;
 var mapW = 100, mapH = 100;
