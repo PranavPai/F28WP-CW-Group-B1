@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" type="text/css" href="../css/canvas.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 </head>
@@ -15,10 +16,11 @@
   <div class="canvasContainer">
   <canvas id="gameCanvas" ></canvas></div>
   <!-- <script src="../js/movement.js"></script> -->
-  <button onclick="location.href='../assets/environments/props/props_big_stone.png'" type="button">Canvas</button>
+  <button onclick="happy()" type="button">Canvas</button>
 
 
   <script src="../js/TileMap.js"></script>
+  <script src="../js/socketio.js"></script>
 
   <script>
     var c = document.getElementById("gameCanvas");
@@ -26,11 +28,6 @@
     ctx.canvas.width  = window.innerWidth;
     ctx.canvas.height = window.innerHeight;
   </script>
-
-<style>
-    
-    
-    </style>
 
 </body>
 
