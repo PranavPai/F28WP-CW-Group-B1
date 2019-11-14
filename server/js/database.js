@@ -20,6 +20,7 @@ class Database {
   }
 
 
+
   addPlayer(player) {
     player.save()
       .then(doc => {
@@ -58,7 +59,6 @@ class Database {
         console.error(err)
       });
   }
-
 }
 
 var defaultplayer = new Player({

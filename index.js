@@ -1,6 +1,7 @@
 const PORTNO = '2000';
 
 var express = require('express');
+
 var app = express();
 var serv = require('http').Server(app);
 var io = require('socket.io')(serv,{});
@@ -14,7 +15,7 @@ app.use(express.static(__dirname + '/client'));
 
 
 serv.listen(PORTNO);
-    console.log(`Server Started on ${PORTNO}`);
+console.log(`Server Started on ${PORTNO}`);
 
 // ###################################################
 
@@ -44,4 +45,5 @@ setInterval(function() {
 
 
 // --------------------------------------------------------------
+
 
