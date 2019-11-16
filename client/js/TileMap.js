@@ -1,3 +1,9 @@
+/*  
+    *This scrip was created by Connor Marshall
+    *H00232766
+    *cm66  
+ */
+
 var context = null;
 var tileW = 50, tileH = 50;
 var mapW = 100, mapH = 100;
@@ -118,8 +124,6 @@ var keyDown = {
     40 : false
 };
 
-
-
 var player = new Character();
 
 // Camera
@@ -166,9 +170,10 @@ function Character()
     this.MoveSpeed = 100;
 }
 
+// NEVER CALL THIS FUNCTION.
 Character.prototype.placeAt = function(x,y) {
     if (x <= gameMap.length-1 && x >= 0 && y <= gameMap.length-1 && y >= 0)
-    {
+    { // NEVER EVER CALL THIS... VERY BAD THINGS WILL HAPPEN AND YOUR FAMILY WILL DIE.
         this.tilePosition[0] = x;
         this.tilePosition[1] = y;
 
@@ -199,16 +204,14 @@ window.onload = function(){
     mapW = gameMap[0].length;
     mapH = gameMap.length;
 
-    //tileW = (tileW / this.mapW) * 50;
-    //tileH = (tileH / this.mapH) * 50;
-
-    window.addEventListener("keydown", function(e)
-    {
+    // Listen if a key have been pressed
+    window.addEventListener("keydown", function(e){
          if (e.keyCode>=37 && e.keyCode<=40)
          {
             keyDown[e.keyCode] = true;
          }
     });
+    // Listen if a key been repleaed.
     window.addEventListener("keyup", function(e){
         if (e.keyCode >=37 && e.keyCode<=40)
             keyDown[e.keyCode] = false; 
@@ -222,6 +225,8 @@ window.onload = function(){
     // END Camera
 };
 
+
+// This is the game loop function.
 function drawGame()
 {
     if (context == null) {return;} // if the windwos has not loaded yet then we need to wait.
@@ -245,33 +250,41 @@ function drawGame()
         // find out if any arrow keys are being pessed and if we can move in that direction .
         var posX =  player.tilePosition[0];
         var posY = player.tilePosition[1]
-
+    
+        /*
+        This is the keyboard input for movment
+        and the colision detection.
+        player.movePlayerTo is called for the direction coresponding to the pressed key
+        the code will check to see if that map location is walkable or not,
+        if it is then the player can move for that key press direction
+        keyDown is a list of all the valid movment keys that cab be pressed to move the player.
+        The player moves around the map by the valid empty space, map[x][y] == 0, to a 2.
+        Doing so will also prevent players from walking over one and other.
+        */
         if (keyDown[38] && gameMap[posX][posY-1] == 0)
         { 
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX,posY-1)
-            player.timeLastMoved = Date.now();
         }
         else if (keyDown[40] &&  gameMap[posX][posY+1] == 0)
         { 
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX,posY+1)
-            player.timeLastMoved = Date.now();
         }
         else if (keyDown[37] &&  gameMap[posX-1][posY] == 0)
         { 
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX-1,posY)
-            player.timeLastMoved = Date.now();
         }
         else if (keyDown[39] &&  gameMap[posX+1][posY] == 0)
         { 
             gameMap[posX][posY] = 0
             player.movePlayerTo(posX+1,posY)
-            player.timeLastMoved = Date.now();
         }
     }
 
+    
+    
     // Camera
     var ttp = TileToPixel(player.tilePosition[0], player.tilePosition[1]);
     viewPort.update(
@@ -284,6 +297,7 @@ function drawGame()
 
     // END Camera
     // CAMERA: Change the range of the nested forloop to only happen within the screanSize.
+
     // draw the tiles that make up the gameMap.
     for(var y = viewPort.startTile[1]; y < viewPort.endTile[1]; y++)
     {
@@ -295,7 +309,7 @@ function drawGame()
                 case 1:
                     context.fillStyle = "#525e5e"; // if wall then fill with dark gray.
                     break;
-                case 2:
+                case 2: // THIS is a player at the given tile.
                     context.fillStyle = "#0000ff";
                     break;
                 default:
@@ -312,6 +326,8 @@ function drawGame()
     requestAnimationFrame(drawGame);
 }
 
+// Takes in a tile position and will return its pixle location.
+// This is for the camera and anything else which works in pixle position.
 function TileToPixel(x,y)
 {
     var pixelX = tileW * (x-1);
