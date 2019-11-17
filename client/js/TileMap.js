@@ -10,6 +10,8 @@ var tileW = 50,
 var mapW = 100,
     mapH = 100;
 
+var LocalPlayerList = [];
+
 var currentSecond = 0,
     frameCount = 0,
     frameLastSecond = 0;
@@ -180,6 +182,7 @@ Character.prototype.placeAt = function(x,y) {
         this.tilePosition[1] = y;
 
         gameMap[x][y] = 2;
+        client.emit('playerposition', ["defaultplayer", [x,y]]);
     }
 };
 
@@ -205,15 +208,10 @@ window.onload = function () {
     mapW = gameMap[0].length;
     mapH = gameMap.length;
 
-
-    //tileW = (tileW / this.mapW) * 50;
-    //tileH = (tileH / this.mapH) * 50;
-
     // Listen if a key have been pressed
     window.addEventListener("keydown", function(e){
-         if (e.keyCode>=37 && e.keyCode<=40)
-         {
-
+        if (e.keyCode>=37 && e.keyCode<=40)
+        {
             keyDown[e.keyCode] = true;
         }
     });
@@ -251,6 +249,8 @@ function drawGame()
     } // else we just need to increase the frame count.
     // since a lot of frames can happen within a seccond, there is a lot of waiting.
     // this is why I use a frame count.
+    
+
 
     if (Date.now() > player.timeLastMoved + player.MoveSpeed) {
 
@@ -301,7 +301,6 @@ function drawGame()
 
     context.fillStyle = "#000000";
     context.fillRect(0, 0, viewPort.screanSize[0], viewPort.screanSize[1]);
-
     // END Camera
 
     // CAMERA: Change the range of the nested forloop to only happen within the screenSize.
@@ -341,3 +340,28 @@ function TileToPixel(x,y)
     
     return [pixelX, pixelY]
 }
+
+
+/*
+    Server is not like a radio.
+    First intp will be the player user name. Second input will be the servers saved postion of the player.
+    
+    Client has a local list of player.
+    if the user name is not in the local list of player then we need to add them, eg a new player has join the game.
+    if the player is in the list and the position is different to the saved location, the player has moved. We need to move
+    that players location on the local client map.
+*/
+client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(NewUserName, newTilePosition) {
+    for(var playerData in LocalPlayerList)
+    {
+        if (playerData[0] == NewUserName)
+        {
+            if (playerData[1] != newTilePosition)
+            {
+                map[ newTilePosition[0], newTilePosition[1] ] = 0;
+                playerData[1] = newTilePosition;
+                map[ newTilePosition[0], newTilePosition[1] ] = 0;
+            }
+        }
+    }
+});

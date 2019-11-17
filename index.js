@@ -4,7 +4,7 @@ var express = require('express');
 
 var app = express();
 var http = require('http').createServer(app);
-var database = require('./server/js/database');
+// var database = require('./server/js/database');
 var Player = require('./server/js/models/player');
 
 app.get('/', function (req, res) {
@@ -20,8 +20,8 @@ console.log(`Server Started on ${PORTNO}`);
 
 var io = require('socket.io')(http);
 
-var SOCKET_LIST = {};
-var PLAYER_LIST = {};
+var SOCKET_LIST = [];
+var PLAYER_LIST = [];
 
 var Player = function (id) {
     var self = {
@@ -34,28 +34,32 @@ var Player = function (id) {
 
 var connectedplayer;
 
+
 io.on('connection', function (client) {
 
     client.id = Math.random();
     connectedplayer = new Player(client.id);
-    SOCKET_LIST[client.id] = client;
+    SOCKET_LIST[client.id] += client;
 
     console.log(`${client.id} socket connection`);
     
     console.log(connectedplayer)
 
+    // Gets called a new player joins the game
     client.on('connectedusername', function initPlayer(username) {
         connectedplayer.username = username;
-        PLAYER_LIST[username] = connectedplayer;
+        PLAYER_LIST[username] += connectedplayer;
         console.log(connectedplayer)
     });
 
     client.on("print", function(word) {
         console.log(word)
     })
-
-    client.on('playerposition', function updatePlayerPosition(tilePosition) {
-        connectedplayer.tilePosition = tilePosition;
+    
+    // 
+    client.on('playerposition', function updatePlayerPosition(packet) {
+        connectedplayer.tilePosition = packet[1];
+        console.log(`Updated Player: ${packet[0]}, position to ${packet[1]}.`);
     });
 
     client.on('disconnect', function () {
@@ -63,7 +67,8 @@ io.on('connection', function (client) {
     });
 });
 
-// console.log(connectedplayer)
+
+
 
 // setInterval(function () {
 //     var pack = []
@@ -81,5 +86,13 @@ io.on('connection', function (client) {
 // }, 1000 / 25);
 
 
+/*
+    server every 45 ms the server will loop though all online players and transmit their locations
+    the server does not give a dam if the client does not get the packet.
+*/
+setInterval(function () {
+    io.emit("playerPostionsFromServer",);
+
+}, 1000 / 25);
 
 // --------------------------------------------------------------
