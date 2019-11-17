@@ -1,13 +1,18 @@
-var socket = io();
+var client = io();
 
 var random = Math.random();
 
-var happy = function() {
-    socket.emit('happy because',{
-        reason: 'its my dday' + random
-    });
-}
-
-socket.on('serverMsg', function(data) {
+client.on('serverMsg', function(data) {
     console.log(data.msg);
 });
+
+client.emit('connectedusername', ""+ Math.floor(10 * Math.random()));
+client.emit("print", "now");
+
+client.on('playerPostionsFromServer', function(pack) {
+    console.log(pack);
+});
+
+setInterval(function() {
+    client.emit('playerposition', player.tilePosition);
+}, 1000/25);
