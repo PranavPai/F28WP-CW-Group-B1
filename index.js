@@ -3,8 +3,7 @@ const PORTNO = '2000';
 var express = require('express');
 
 var app = express();
-var serv = require('http').Server(app);
-var io = require('socket.io')(serv,{});
+var http = require('http').createServer(app);
 var database = require('./server/js/database');
 var Player = require('./server/js/models/player');
 
@@ -14,36 +13,73 @@ app.get('/', function (req, res) {
 app.use(express.static(__dirname + '/client'));
 
 
-serv.listen(PORTNO);
+http.listen(PORTNO);
 console.log(`Server Started on ${PORTNO}`);
 
 // ###################################################
 
+var io = require('socket.io')(http);
+
 var SOCKET_LIST = {};
-io.sockets.on('connection', function(socket) {
+var PLAYER_LIST = {};
 
-    socket.id = Math.random();
-    socket.x = 0
-    socket.y = 0
-    SOCKET_LIST[socket.id] = socket;
+var Player = function (id) {
+    var self = {
+        tilePosition: [50, 50],
+        username: "defaultplayer",
+        id: id
+    }
+    return self;
+}
 
-    console.log(`${socket.id} socket connection`);
+var connectedplayer;
+
+io.on('connection', function (client) {
+
+    client.id = Math.random();
+    connectedplayer = new Player(client.id);
+    SOCKET_LIST[client.id] = client;
+
+    console.log(`${client.id} socket connection`);
+    
+    console.log(connectedplayer)
+
+    client.on('connectedusername', function initPlayer(username) {
+        connectedplayer.username = username;
+        PLAYER_LIST[username] = connectedplayer;
+        console.log(connectedplayer)
+    });
+
+    client.on("print", function(word) {
+        console.log(word)
+    })
+
+    client.on('playerposition', function updatePlayerPosition(tilePosition) {
+        connectedplayer.tilePosition = tilePosition;
+    });
+
+    client.on('disconnect', function () {
+        delete SOCKET_LIST[client.id];
+    });
 });
 
-setInterval(function() {
-    for(var i in SOCKET_LIST[i]){
-        let socket = SOCKET_LIST[i];
-        socket.x++;
-        socket.y++;
-        socket.emit('newPostion',{
-            x:socket.x,
-            y:socket.y
-        });
-    }
-},1000/25);
+// console.log(connectedplayer)
+
+// setInterval(function () {
+//     var pack = []
+//     for (var i in PLAYER_LIST[i]) {
+//         let player = PLAYER_LIST[i];
+//         pack.push({
+//             username: player.username,
+//             tilePosition: player.tilePosition
+//         });
+//     }
+//     for(var i in SOCKET_LIST[i]){
+//         var client = SOCKET_LIST[i];
+//         io.emit('playerPostionsFromServer', pack);
+//     }
+// }, 1000 / 25);
 
 
 
 // --------------------------------------------------------------
-
-
