@@ -5,7 +5,7 @@ var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
 // var database = require('./server/js/database');
-var Player = require('./server/js/models/player');
+//var Player = require('./server/js/models/player');
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
@@ -20,12 +20,13 @@ console.log(`Server Started on ${PORTNO}`);
 
 var io = require('socket.io')(http);
 
-var SOCKET_LIST = [];
-var PLAYER_LIST = [];
+
+//var SOCKET_LIST = [];
+var PLAYER_LIST = []; // list of playerDataObjects
 
 var Player = function (id) {
     var self = {
-        tilePosition: [50, 50],
+        tilePosition: [-1, -1],
         username: "defaultplayer",
         id: id
     }
@@ -36,20 +37,18 @@ var connectedplayer;
 
 
 io.on('connection', function (client) {
-
-    client.id = Math.random();
-    connectedplayer = new Player(client.id);
-    SOCKET_LIST[client.id] += client;
-
-    console.log(`${client.id} socket connection`);
-    
-    console.log(connectedplayer)
-
     // Gets called a new player joins the game
-    client.on('connectedusername', function initPlayer(username) {
+    client.on('connectedusername', function initPlayer(username, tilePosition) {
+        client.id = Math.random();
+        connectedplayer = new Player(client.id);
         connectedplayer.username = username;
-        PLAYER_LIST[username] += connectedplayer;
-        console.log(connectedplayer)
+        connectedplayer.tilePosition = tilePosition
+        
+        if (!PLAYER_LIST.includes(connectedplayer))
+        {
+            PLAYER_LIST.push(connectedplayer); // only add the new player if they do not exist in the list.
+            //console.log(`New player joined: player count:  ${PLAYER_LIST.length}`);
+        }
     });
 
     client.on("print", function(word) {
@@ -58,16 +57,42 @@ io.on('connection', function (client) {
     
     // 
     client.on('playerposition', function updatePlayerPosition(packet) {
-        connectedplayer.tilePosition = packet[1];
-        console.log(`Updated Player: ${packet[0]}, position to ${packet[1]}.`);
+        ClientNameToPlayerObject(packet[0]).tilePosition = packet[1];
     });
 
     client.on('disconnect', function () {
-        delete SOCKET_LIST[client.id];
+        PLAYER_LIST.splice(ClientIDToPlayerListIndex(client.id),1);
     });
 });
 
+// takes in a given ID and finds the index for that player, returns -1 if not found.
+function ClientIDToPlayerListIndex(id)
+{
+    for(var i = 0; i < PLAYER_LIST.length; i++)
+    {
+        if (PLAYER_LIST[i].id == id)
+        {
+            return i;
+        }
+    }
+    
+    return -1;
+}
 
+// takes in a player name and will return the object connected to that name.
+// returns -1 if object was not found in list.
+function ClientNameToPlayerObject(username)
+{
+    for(var i = 0; i < PLAYER_LIST.length; i++)
+    {
+        if (PLAYER_LIST[i].username == username)
+        {
+            return PLAYER_LIST[i];
+        }
+    }
+    
+    return -1;
+}
 
 
 // setInterval(function () {
@@ -91,7 +116,16 @@ io.on('connection', function (client) {
     the server does not give a dam if the client does not get the packet.
 */
 setInterval(function () {
-    io.emit("playerPostionsFromServer",);
+    // loop though all players in the list and emit their information to the clients
+    
+
+    for (var i = 0; i < PLAYER_LIST.length; i++)
+    {
+        var packet = [PLAYER_LIST[i].username, PLAYER_LIST[i].tilePosition];
+        io.emit("playerPostionsFromServer", packet);
+    }
+    
+    
 
 }, 1000 / 25);
 
