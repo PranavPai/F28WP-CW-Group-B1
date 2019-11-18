@@ -20,13 +20,18 @@ class Database {
   }
 
 
+
   addPlayer(player) {
     player.save()
       .then(doc => {
-        console.log(doc)
+        console.log(`Username: ${doc.username} : Player Added To Database`)
       })
       .catch(err => {
-        console.error(err.code)
+        if (err.code == 11000) {
+          console.log(`Error: ${err.code} :: Player Already Exists`);
+        } else {
+          console.error(err.code)
+        }
       })
   }
 
@@ -35,11 +40,11 @@ class Database {
         username: passed_username
       })
       .then(doc => {
-        // console.log(doc)
+        console.log(`Username: ${passed_username} : Player Found In Database`)
         return doc
       })
       .catch(err => {
-        console.error(err)
+        console.error(err);
       })
   }
 
@@ -54,7 +59,31 @@ class Database {
         console.error(err)
       });
   }
-
 }
+
+var defaultplayer = new Player({
+  firstname: "Default",
+  lastname: "Player",
+  email: "defaultplayer@test.com",
+  username: "defaultplayer",
+  password: "default",
+  playerposition: {
+    x: 50,
+    y: 50
+  },
+  isOnline: true
+});
+var defaultplayer2 = new Player({
+  firstname: "Default",
+  lastname: "Player",
+  email: "defaultplayer2@test.com",
+  username: "defaultplayer2",
+  password: "default",
+  playerposition: {
+    x: 50,
+    y: 50
+  },
+  isOnline: true
+});
 
 module.exports = new Database()
