@@ -10,6 +10,8 @@ var tileW = 50,
 var mapW = 100,
     mapH = 100;
 
+var LocalPlayerList = []; // format : ["username",[x,y]]
+
 var currentSecond = 0,
     frameCount = 0,
     frameLastSecond = 0;
@@ -167,9 +169,14 @@ var viewPort = {
 
 
 function Character() {
+    this.username = Math.random();
     this.tilePosition = [1, 1];
     this.timeLastMoved = 0;
-    this.MoveSpeed = 100;
+    this.MoveSpeed = 200;
+
+    LocalPlayerList.push([this.username, this.tilePosition]);
+
+    client.emit("connectedusername", this.username, this.tilePosition);
 }
 
 // NEVER CALL THIS FUNCTION.
@@ -180,6 +187,7 @@ Character.prototype.placeAt = function(x,y) {
         this.tilePosition[1] = y;
 
         gameMap[x][y] = 2;
+        client.emit('playerposition', [this.username, this.tilePosition]);
     }
 };
 
@@ -192,6 +200,7 @@ Character.prototype.movePlayerTo = function (x, y) {
     }
 };
 
+// This is the game loop
 window.onload = function () {
 
     player.placeAt(Math.floor(gameMap.length / 2), Math.floor(gameMap.length / 2));
@@ -205,15 +214,10 @@ window.onload = function () {
     mapW = gameMap[0].length;
     mapH = gameMap.length;
 
-
-    //tileW = (tileW / this.mapW) * 50;
-    //tileH = (tileH / this.mapH) * 50;
-
     // Listen if a key have been pressed
     window.addEventListener("keydown", function(e){
-         if (e.keyCode>=37 && e.keyCode<=40)
-         {
-
+        if (e.keyCode>=37 && e.keyCode<=40)
+        {
             keyDown[e.keyCode] = true;
         }
     });
@@ -251,6 +255,8 @@ function drawGame()
     } // else we just need to increase the frame count.
     // since a lot of frames can happen within a seccond, there is a lot of waiting.
     // this is why I use a frame count.
+    
+
 
     if (Date.now() > player.timeLastMoved + player.MoveSpeed) {
 
@@ -301,7 +307,6 @@ function drawGame()
 
     context.fillStyle = "#000000";
     context.fillRect(0, 0, viewPort.screanSize[0], viewPort.screanSize[1]);
-
     // END Camera
 
     // CAMERA: Change the range of the nested forloop to only happen within the screenSize.
@@ -341,3 +346,44 @@ function TileToPixel(x,y)
     
     return [pixelX, pixelY]
 }
+
+// holds a list of tile postions of all 2s in the map.
+var listOf2s = [];
+
+/*
+    Server is not like a radio.
+    First intp will be the player user name. Second input will be the servers saved postion of the player.
+    
+    Client has a local list of player.
+    if the user name is not in the local list of player then we need to add them, eg a new player has join the game.
+    if the player is in the list and the position is different to the saved location, the player has moved. We need to move
+    that players location on the local client map.
+*/
+client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
+{  
+    for (var i = 0; i < LocalPlayerList.length; i++) 
+    {
+        var testUserName = LocalPlayerList[i][0]
+        if (testUserName == packet[0] && packet[0] != player.username)
+        {
+            var localTilePos = LocalPlayerList[i][1]
+            console.log(localTilePos[0] != packet[1][0] || localTilePos[1] != packet[1][1]);
+            if (localTilePos[0] != packet[1][0] || localTilePos[1] != packet[1][1])
+            {
+                gameMap[localTilePos[0]][localTilePos[1]] = 0;
+                gameMap[packet[1][0]][packet[1][1]] = 2;
+
+                listOf2s.push(packet[1]);
+                listOf2s.push(localTilePos);
+
+                LocalPlayerList[i][1] = packet[1];
+            }
+            
+            return // we found the player that needs to be updated so we can are done
+            // and we can now wait for the next packet to come.
+        }
+    }
+    // if we are there then we need to add the to list.
+    // as the this is a new player that has join the game.
+    LocalPlayerList.push(packet);
+});
