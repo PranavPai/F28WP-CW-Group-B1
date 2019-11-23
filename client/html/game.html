@@ -13,14 +13,23 @@
 </head>
 
 <body>
+  <script src="../js/socketio.js"></script>
+
+  <script src="../js/Player/Character.js"></script>
+  <script src="../js/Player/PlayerMovment.js"></script>
+  <script src="../js/World/Camera.js"></script>
+  <script src="../js/World/GameMap.js"></script>
+  <script src="../js/World/TileMap.js"></script>
+ 
+  
   <div class="grid-container">
 
     <div class="canvasContainer">
     <canvas id="gameCanvas"></canvas>
     </div>
 
-    <script src="../js/socketio.js"></script>
-    <script src="../js/TileMap.js"></script>
+
+    
     
 
     <script>
@@ -39,8 +48,6 @@
             var ctx = c.getContext("2d");
             ctx.canvas.width  = window.innerWidth * 0.2;
             ctx.canvas.height = window.innerHeight * 0.8;
-
-
             ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
             ctx.fillStyle = "lightGray";
             ctx.fill();
