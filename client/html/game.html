@@ -21,16 +21,13 @@
   <script src="../js/World/GameMap.js"></script>
   <script src="../js/World/TileMap.js"></script>
  
-  
+  <script src="../js/Player/HealthBar.js"></script>
+
   <div class="grid-container">
 
     <div class="canvasContainer">
-    <canvas id="gameCanvas"></canvas>
+      <canvas id="gameCanvas"></canvas>
     </div>
-
-
-    
-    
 
     <script>
       var c = document.getElementById("gameCanvas");
@@ -40,7 +37,25 @@
     </script>
 
   <div class="Stats">
-    <body>
+    
+      <h1>Health</h1>
+      <div class="HealthStatBar">
+        <div class="HealthBarValue">65%</div>
+        <div class="HealthBarFill"></div>
+      </div>
+      
+      <h1>EXP</h1>
+      <div class="EXPStatBar">
+        <div class="EXPBarValue">65%</div>
+        <div class="EXPBarFill"></div>
+      </div>
+
+      <script>
+        new ProgressBar(document.querySelector('.HealthStatBar', 75));
+      </script>
+
+
+    <!-- <body>
         <canvas id="StatsCanvase"></canvas>
 
         <script>
@@ -52,7 +67,7 @@
             ctx.fillStyle = "lightGray";
             ctx.fill();
           </script>
-    </body>
+    </body> -->
   </div>
 
   <div class="Chat">

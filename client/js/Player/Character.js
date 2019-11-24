@@ -80,6 +80,4 @@ client.on("playerTakeDamageFromServer", function PlayerTakeDamageFromServer(pack
         // you are the one who took damge
         player.TakeDamge(packet[1]);
     }
-
-
 });

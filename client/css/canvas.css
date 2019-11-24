@@ -67,3 +67,64 @@ body {
 .Stats { grid-area: Stats; }
 
 .Chat { grid-area: Chat; }
+
+
+/* Health Bar CSS  */
+.HealthStatBar 
+{
+    position: relative;
+    width: 80%;
+    height: 5%;
+    border: 1px solid #000000;
+}
+
+.HealthBarValue
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+}
+
+.HealthBarFill 
+{
+    height: 100%;
+    background-color: #4ad420;
+    transition: width 0.5s;
+}
+/* END health Bar CSS */
+
+/* EXP bar CSS */
+.EXPStatBar 
+{
+    position: relative;
+    width: 80%;
+    height: 5%;
+    border: 1px solid #000000;
+}
+
+.EXPBarValue
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+}
+
+.EXPBarFill 
+{
+    height: 100%;
+    background-color: #f0d909;
+    transition: width 0.5s;
+}
+/* END EXP bar CSS */
