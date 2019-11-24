@@ -151,8 +151,12 @@ iframe {
 
 /* -----------------------------------------------------------------------*/
 
-.title-box {
+.title-box 
+{
     width: 100%;
+    color: #ffffff;
+    text-align: center;
+    font-family: "Century Gothic"
 }
 
 .limiter {
@@ -177,6 +181,7 @@ iframe {
 
 .login-wrap {
 
+    font-family:"Arial"
     border-radius: 10px;
     overflow: hidden;
     background-color: rgba(255, 255, 255, 0.3);
@@ -190,19 +195,20 @@ iframe {
     padding: 30px 70px;
 }
 
-.login-form {
+#login-form 
+{
     width: 290px;
 }
 
 .login-form-title {
     font-size: 24px;
-    color: #333333;
+    color: #ffffff;     
     line-height: 1.2;
     text-align: center;
-
     width: 100%;
     display: block;
     padding-bottom: 54px;
+    font-family:"Century Gothic"
 }
 
 .login-input-wrap {
@@ -248,6 +254,18 @@ iframe {
 .login-input:focus+.input-focus {
     -webkit-animation: anim-shadow 0.5s ease-in-out forwards;
     animation: anim-shadow 0.5s ease-in-out forwards;
+}
+
+
+.backbtn
+{
+
+    position: relative;
+    bottom: 20px;
+    color: #ffffff;
+    text-align: top;
+    font-family:"Century Gothic"
+
 }
 
 @-webkit-keyframes anim-shadow {
