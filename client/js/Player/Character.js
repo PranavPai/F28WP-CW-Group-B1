@@ -1,7 +1,7 @@
 var client = io();
 
 function Character() {
-    this.username = Math.random();
+    this.username = sessionStorage.getItem('username');
     this.tilePosition = [1, 1];
     this.timeLastMoved = 0;
     this.MoveSpeed = 200;
