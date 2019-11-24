@@ -1,6 +1,6 @@
 const PORTNO = '2000';
-const MONGODB_SERVER = 'localhost';
-const MONGODB_DATABASE = 'game-v1';
+const MONGODB_SERVER = 'mongodb.benjaminjacobreji.xyz:27017';
+const MONGODB_DATABASE = 'mmorpg';
 
 var CONNECTED_PLAYER_LIST = []; // list of playerDataObjects
 
@@ -8,13 +8,24 @@ var CONNECTED_PLAYER_LIST = []; // list of playerDataObjects
 const express = require('express');
 const mongoose = require('mongoose');
 
-var Player = require('./server/js/models/player');
+var User = require('./server/js/models/user');
 // Create a new instance of Express
 const app = express();
 
 
 // Connect to the database
-mongoose.connect(`mongodb://${MONGODB_SERVER}/${MONGODB_DATABASE}`)
+const mongodbURI = `mongodb://${MONGODB_SERVER}/${MONGODB_DATABASE}?authSource=${MONGODB_DATABASE}`;
+const mongodbOptions = {
+    user: "nodejs",
+    pass: "happyMongoDB2019",
+    keepAlive: true,
+    keepAliveInitialDelay: 300000,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+};
+
+mongoose.connect(mongodbURI, mongodbOptions)
     .then(() => {
         console.log('Database connection successful')
     })
@@ -24,13 +35,15 @@ mongoose.connect(`mongodb://${MONGODB_SERVER}/${MONGODB_DATABASE}`)
 
 
 // ####################################################
+
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
 });
 // Serve static html, js, css, and image files from the 'client' directory
 app.use(express.static(__dirname + '/client'));
 
-http.listen(process.env.PORT || PORTNO);
+// Create a Node.js based http server on port 2000
+var server = require('http').createServer(app).listen(process.env.PORT || PORTNO);
 console.log(`Server Started on ${PORTNO}`);
 
 // Create a Socket.IO server and attach it to the http server
@@ -104,18 +117,17 @@ var Player = function (id) {
 var connectedplayer;
 
 io.on('connection', function (client) {
-    
+
     // Gets called a new player joins the game
     client.on('connectedusername', function initPlayer(username, tilePos) {
         client.id = Math.random();
         connectedplayer = new Player(client.id);
         connectedplayer.username = username;
         connectedplayer.tilePosition = tilePos
-        if (!PLAYER_LIST.includes(connectedplayer))
-        {
-            PLAYER_LIST.push(connectedplayer); // only add the new player if they do not exist in the list.
+        if (!CONNECTED_PLAYER_LIST.includes(connectedplayer)) {
+            CONNECTED_PLAYER_LIST.push(connectedplayer); // only add the new player if they do not exist in the list.
         }
-        
+
     });
 
 
@@ -129,21 +141,20 @@ io.on('connection', function (client) {
         disconectedPlayerIndex = ClientIDToPlayerListIndex(client.id)
 
         // send an update message to all clients that this player has disconected.
-        io.emit("PlayerDisconected", PLAYER_LIST[disconectedPlayerIndex]);
-        PLAYER_LIST.splice(disconectedPlayerIndex);
+        io.emit("PlayerDisconected", CONNECTED_PLAYER_LIST[disconectedPlayerIndex]);
+        CONNECTED_PLAYER_LIST.splice(disconectedPlayerIndex);
     });
 
     // packet[0] is the player pos that is getting attacked.
     // packet[1] is the amount that we are damaging the player by, before defence is used.
-    client.on('PlayerAttackOtherPlayer', function(packet) { 
+    client.on('PlayerAttackOtherPlayer', function (packet) {
         // packet[0] == playerPos, packet[1] == damageAmount, packet[2] == the player who attacked
         player = getPlayerFromPos(packet[0]);
 
-        if (packet[1] != undefined)
-        {        
+        if (packet[1] != undefined) {
             console.log(`${packet[2]} attacked ${player} at pos: ${packet[0]} and did ${packet[1]} to it`);
         }
-        
+
     });
 });
 
@@ -153,28 +164,23 @@ io.on('connection', function (client) {
 */
 setInterval(function () {
     UpdateAllConnectedClients();
-    
+
 }, 1000 / 25);
 
 // send and update of all players currently online to all players online.
-function UpdateAllConnectedClients()
-{
+function UpdateAllConnectedClients() {
     // loop though all players in the list and emit their information to the clients
-    for (var i = 0; i < PLAYER_LIST.length; i++)
-    {
-        var packet = [PLAYER_LIST[i].username, PLAYER_LIST[i].tilePosition];
+    for (var i = 0; i < CONNECTED_PLAYER_LIST.length; i++) {
+        var packet = [CONNECTED_PLAYER_LIST[i].username, CONNECTED_PLAYER_LIST[i].tilePosition];
         io.emit("playerPostionsFromServer", packet);
     }
 }
 
 // takes in a players position then finds and returns that player from the list. 
 // returns -1 if not found
-function getPlayerFromPos(playerPos)
-{
-    for (var index = 0; index < PLAYER_LIST.length; index++)
-    {   // is the player in the list
-        if (PLAYER_LIST[index].tilePosition[0] == playerPos[0] && PLAYER_LIST[index].tilePosition[1] == playerPos[1] )
-        {
+function getPlayerFromPos(playerPos) {
+    for (var index = 0; index < CONNECTED_PLAYER_LIST.length; index++) { // is the player in the list
+        if (CONNECTED_PLAYER_LIST[index].tilePosition[0] == playerPos[0] && CONNECTED_PLAYER_LIST[index].tilePosition[1] == playerPos[1]) {
             console.log("FOUND");
         }
     }
@@ -196,16 +202,13 @@ function ClientNameToPlayerObject(username) {
 }
 
 // takes in a given ID and finds the index for that player, returns -1 if not found.
-function ClientIDToPlayerListIndex(id)
-{
-    for(var i = 0; i < PLAYER_LIST.length; i++)
-    {
-        if (PLAYER_LIST[i].id == id)
-        {
+function ClientIDToPlayerListIndex(id) {
+    for (var i = 0; i < CONNECTED_PLAYER_LIST.length; i++) {
+        if (CONNECTED_PLAYER_LIST[i].id == id) {
             return i;
         }
     }
-    
+
     return -1;
 }
 // --------------------------------------------------------------
