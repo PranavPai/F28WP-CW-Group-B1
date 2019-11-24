@@ -2,7 +2,7 @@ const PORTNO = '2000';
 const MONGODB_SERVER = 'mongodb.benjaminjacobreji.xyz:27017';
 const MONGODB_DATABASE = 'mmorpg';
 
-var CONNECTED_PLAYER_LIST = []; // list of playerDataObjects
+var CONNECTED_PLAYER_LIST = []; // list of Character Objects
 
 // Import modules
 const express = require('express');
@@ -167,8 +167,11 @@ io.on('connection', function (client) {
     client.on('PlayerAttackOtherPlayer', function (packet) {
         // packet[0] == playerPos, packet[1] == damageAmount, packet[2] == the player who attacked
         player = getPlayerFromPos(packet[0]);
-        if (packet[1] != undefined) {
-            console.log(`${packet[2]} attacked ${player} at pos: ${packet[0]} and did ${packet[1]} to it`);
+        // console.log(`player: ${player}`);
+        if (packet[1] != undefined && player != -1) // check if we are getting garbage
+        {
+            io.emit('playerTakeDamageFromServer', [player, packet[1], packet[2]]);
+            // console.log(`${packet[2]} attacked ${player.username} at pos: ${packet[0]} and did ${packet[1]} to it`);
         }
     });
 });
@@ -190,6 +193,7 @@ function UpdateAllConnectedClients() {
     // loop though all players in the list and emit their information to the clients
     for (var i = 0; i < CONNECTED_PLAYER_LIST.length; i++) {
         var packet = [CONNECTED_PLAYER_LIST[i].username, CONNECTED_PLAYER_LIST[i].tilePosition];
+        // packet[0] == username packet[1] == [tilepos]
         io.emit("playerPostionsFromServer", packet);
     }
 }
@@ -198,12 +202,15 @@ function UpdateAllConnectedClients() {
 // returns -1 if not found
 function getPlayerFromPos(playerPos) {
     for (var index = 0; index < CONNECTED_PLAYER_LIST.length; index++) { // is the player in the list
-        if (CONNECTED_PLAYER_LIST[index].tilePosition[0] == playerPos[0] && CONNECTED_PLAYER_LIST[index].tilePosition[1] == playerPos[1]) {
-            console.log("FOUND");
+        if (CONNECTED_PLAYER_LIST[index].tilePosition[0] == playerPos[0] &&
+             CONNECTED_PLAYER_LIST[index].tilePosition[1] == playerPos[1]) {
+            return CONNECTED_PLAYER_LIST[index];
         }
     }
     // else the player is not in the list and we need to return an error (-1)
+    return -1;
 }
+
 
 
 // takes in a player name and will return the object connected to that name.
