@@ -2,7 +2,7 @@ const PORTNO = '2000';
 const MONGODB_SERVER = 'mongodb.benjaminjacobreji.xyz:27017';
 const MONGODB_DATABASE = 'mmorpg';
 
-var CONNECTED_PLAYER_LIST = []; // list of playerDataObjects
+var CONNECTED_PLAYER_LIST = []; // list of Character Objects
 
 // Import modules
 const express = require('express');
@@ -24,6 +24,20 @@ const mongodbOptions = {
     useUnifiedTopology: true,
     useCreateIndex: true
 };
+
+var user1 = {
+    "username": "defaultplayer1",
+    "email": "defaultplayer@mail.com",
+    "password": "helloworld",
+    "firstname": "Default",
+    "lastname": "Player",
+    "highscore": 
+      {
+        "highestNumberOfKills": 12,
+        "highestLevel": 5,
+        "longestTimeAlive": 75
+      }
+  };
 
 mongoose.connect(mongodbURI, mongodbOptions)
     .then(() => {
@@ -52,8 +66,10 @@ var io = require('socket.io').listen(server);
 // ##################################################
 // DATABASE STUFF
 
-function addPlayer(player) {
-    player.save()
+// adds the passed user to the database, returns error if user exists
+async function addUser(passedUser) {
+    var newUser = new User(passedUser);
+    await newUser.save()
         .then(doc => {
             console.log(`Username: ${doc.username} : Player Added To Database`)
         })
@@ -66,12 +82,15 @@ function addPlayer(player) {
         });
 }
 
-function getPlayer(passed_username) {
-    User.find({
+// returns the the user document from the database for the given username
+// returns a list, so use ( getUser(username)[0] ) to get object
+async function getUser(passed_username) {
+    await User.find({
             username: passed_username
         })
         .then(doc => {
-            console.log(`Username: ${passed_username} : Player Found In Database`)
+            console.log(`Username: ${passed_username} : Player Found In Database`);
+            console.log(doc);
             return doc
         })
         .catch(err => {
@@ -79,18 +98,38 @@ function getPlayer(passed_username) {
         });
 }
 
-function updatePlayer(player) {
-    pass
+// returns the highscore object from the database for the connected player
+async function getPlayerHighScore(connectedplayer) {
+    var user = await User.findOne({
+        username: connectedplayer.username
+    });
+    return user.highscore;
+}
+
+// updates the highscores in the database for the connected player
+async function updatePlayerHighScore(connectedplayer) {
+    var user = await User.findOne({
+        username: connectedplayer.username
+    });
+    user.highscore.highestNumberOfKills = connectedplayer.highscore.currentNumberOfKills;
+    user.highscore.highestLevel = connectedplayer.highscore.currentLevel;
+    user.highscore.longestTimeAlive = connectedplayer.highscore.currentTimeAlive;
+    await user.save();
 }
 
 // ###################################################
 
-
+// player object to store in memory
 var Player = function (id) {
     var self = {
         tilePosition: [-1, -1],
         username: "defaultplayer",
-        id: id
+        id: id,
+        highscore: {
+            currentNumberOfKills: 0,
+            currentLevel: 0,
+            currentTimeAlive: 0
+        }
     }
     return self;
 }
@@ -98,6 +137,8 @@ var Player = function (id) {
 var connectedplayer;
 
 io.on('connection', function (client) {
+
+    console.log("client connected");
 
     // Gets called a new player joins the game
     client.on('connectedusername', function initPlayer(username, tilePos) {
@@ -126,8 +167,11 @@ io.on('connection', function (client) {
     client.on('PlayerAttackOtherPlayer', function (packet) {
         // packet[0] == playerPos, packet[1] == damageAmount, packet[2] == the player who attacked
         player = getPlayerFromPos(packet[0]);
-        if (packet[1] != undefined) {
-            console.log(`${packet[2]} attacked ${player} at pos: ${packet[0]} and did ${packet[1]} to it`);
+        // console.log(`player: ${player}`);
+        if (packet[1] != undefined && player != -1) // check if we are getting garbage
+        {
+            io.emit('playerTakeDamageFromServer', [player, packet[1], packet[2]]);
+            // console.log(`${packet[2]} attacked ${player.username} at pos: ${packet[0]} and did ${packet[1]} to it`);
         }
     });
 });
@@ -138,7 +182,6 @@ io.on('connection', function (client) {
 */
 setInterval(function () {
     UpdateAllConnectedClients();
-
 }, 1000 / 25);
 
 // ##############################################################################################
@@ -150,6 +193,7 @@ function UpdateAllConnectedClients() {
     // loop though all players in the list and emit their information to the clients
     for (var i = 0; i < CONNECTED_PLAYER_LIST.length; i++) {
         var packet = [CONNECTED_PLAYER_LIST[i].username, CONNECTED_PLAYER_LIST[i].tilePosition];
+        // packet[0] == username packet[1] == [tilepos]
         io.emit("playerPostionsFromServer", packet);
     }
 }
@@ -158,12 +202,15 @@ function UpdateAllConnectedClients() {
 // returns -1 if not found
 function getPlayerFromPos(playerPos) {
     for (var index = 0; index < CONNECTED_PLAYER_LIST.length; index++) { // is the player in the list
-        if (CONNECTED_PLAYER_LIST[index].tilePosition[0] == playerPos[0] && CONNECTED_PLAYER_LIST[index].tilePosition[1] == playerPos[1]) {
-            console.log("FOUND");
+        if (CONNECTED_PLAYER_LIST[index].tilePosition[0] == playerPos[0] &&
+             CONNECTED_PLAYER_LIST[index].tilePosition[1] == playerPos[1]) {
+            return CONNECTED_PLAYER_LIST[index];
         }
     }
     // else the player is not in the list and we need to return an error (-1)
+    return -1;
 }
+
 
 
 // takes in a player name and will return the object connected to that name.
