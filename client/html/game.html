@@ -20,16 +20,13 @@
   <script src="../js/World/GameMap.js"></script>
   <script src="../js/World/TileMap.js"></script>
  
-  
+  <script src="../js/Player/ProgressBar.js"></script>
+
   <div class="grid-container">
 
     <div class="canvasContainer">
-    <canvas id="gameCanvas"></canvas>
+      <canvas id="gameCanvas"></canvas>
     </div>
-
-
-    
-    
 
     <script>
       var c = document.getElementById("gameCanvas");
@@ -39,8 +36,33 @@
     </script>
 
   <div class="Stats">
-    <body>
-        <canvas id="StatsCanvas"></canvas>
+    
+      <h1 class="StatsText">Health</h1>
+      <div class="HealthStatBar">
+        <div class="HealthBarValue">65%</div>
+        <div class="HealthBarFill"></div>
+      </div>
+      
+      <h1 class="StatsText">EXP</h1>
+      <div class="EXPStatBar">
+        <div class="EXPBarValue">65%</div>
+        <div class="EXPBarFill"></div>
+      </div>
+
+      <script>
+        progressBars = [];
+        // index 0 HealthBar
+        // index 1 EXPBar
+        progressBars.push(new ProgressBar(document.querySelector('.HealthStatBar'),
+                                           100, ".HealthBarValue", ".HealthBarFill"));
+        progressBars.push(new ProgressBar(document.querySelector('.EXPStatBar'), 
+                                            0, ".EXPBarValue", ".EXPBarFill"));
+      </script>
+
+
+    <!-- <body>
+        <canvas id="StatsCanvase"></canvas>
+
 
         <script>
             var c = document.getElementById("StatsCanvas");
@@ -51,7 +73,7 @@
             ctx.fillStyle = "lightGray";
             ctx.fill();
           </script>
-    </body>
+    </body> -->
   </div>
 
   <div class="Chat">
@@ -68,7 +90,7 @@
               ctx.fill();
             </script> -->
       </body>
-    </div>
+  </div>
 </div>
 </body>
 
