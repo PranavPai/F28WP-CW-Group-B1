@@ -10,9 +10,65 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script type='text/javascript' src='https://cdn.scaledrone.com/scaledrone.min.js'></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      max-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .members-count,
+    .members-list,
+    .messages {
+      border: 1px solid #e4e4e4;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .messages {
+      flex-shrink: 1;
+      overflow: auto;
+    }
+    .message {
+      padding: 5px 0;
+    }
+    .message .member {
+      display: inline-block;
+    }
+    .member {
+      padding-right: 10px;
+      position: relative;
+    }
+    .message-form {
+      display: flex;
+      flex-shrink: 0;
+    }
+    .message-form__input {
+      flex-grow: 1;
+      border: 1px solid #dfdfdf;
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+    .message-form__button {
+      margin: 10px;
+    }
+  </style>
 </head>
 
 <body>
+    <div class="members-count">-</div>
+    <div class="members-list">-</div>
+    <div class="messages"></div>
+    <form class="message-form" onsubmit="return false;">
+      <input class="message-form__input" placeholder="Type a message.." type="text"/>
+      <input class="message-form__button" value="Send" type="submit"/>
+    </form>
+    
   <script src="../js/socketio.js"></script>
 
   <script src="../js/Player/Character.js"></script>
@@ -27,10 +83,7 @@
     <div class="canvasContainer">
     <canvas id="gameCanvas"></canvas>
     </div>
-
-
-    
-    
+ 
 
     <script>
       var c = document.getElementById("gameCanvas");
@@ -57,8 +110,8 @@
 
   <div class="Chat">
       <body>
-          <canvas id="ChatCanvase"></canvas>
-
+          <script src="../script.js"></script>
+        <!----  <canvas id="ChatCanvase"></canvas>
           <script>
               var c = document.getElementById("ChatCanvase");
               var ctx = c.getContext("2d");
@@ -68,7 +121,7 @@
               ctx.fillStyle = "gray";
               ctx.fill();
             </script>
-            
+            --> 
       </body>
     </div>
 </div>
