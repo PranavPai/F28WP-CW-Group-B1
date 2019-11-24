@@ -51,4 +51,6 @@ let playerSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('Player', playerSchema)
+var Player = mongoose.model('Player', playerSchema)
+
+module.exports = Player

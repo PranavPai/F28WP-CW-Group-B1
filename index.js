@@ -1,28 +1,96 @@
 const PORTNO = '2000';
+const MONGODB_SERVER = 'localhost';
+const MONGODB_DATABASE = 'game-v1';
 
-var express = require('express');
+var CONNECTED_PLAYER_LIST = []; // list of playerDataObjects
 
-var app = express();
-var http = require('http').createServer(app);
-// var database = require('./server/js/database');
-//var Player = require('./server/js/models/player');
+// Import modules
+const express = require('express');
+const mongoose = require('mongoose');
 
+var Player = require('./server/js/models/player');
+// Create a new instance of Express
+const app = express();
+
+
+// Connect to the database
+mongoose.connect(`mongodb://${MONGODB_SERVER}/${MONGODB_DATABASE}`)
+    .then(() => {
+        console.log('Database connection successful')
+    })
+    .catch(err => {
+        console.error(`Database connection error: ${err}`)
+    })
+
+
+// ####################################################
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
 });
+// Serve static html, js, css, and image files from the 'client' directory
 app.use(express.static(__dirname + '/client'));
-
 
 http.listen(process.env.PORT || PORTNO);
 console.log(`Server Started on ${PORTNO}`);
 
+// Create a Socket.IO server and attach it to the http server
+var io = require('socket.io').listen(server);
+
+io.sockets.on('connection', function (socket) {
+    console.log("client connected");
+
+});
+
+// ###################################################
+// FUNCTIONS
+
+// From Client
+function onClientSendMessage(messageFromClient) {
+    formatedMessage = client.username + ": " + messageFromClient;
+    gameSocket.emit('chatMessageFromServer', formatedMessage);
+}
+
+function onGetClientPosition(positionpacket) {
+    ClientNameToPlayerObject(packet[0]).tilePosition = packet[1];
+}
+
+// ##################################################
+// DATABASE STUFF
+
+function addPlayer(player) {
+    player.save()
+        .then(doc => {
+            console.log(`Username: ${doc.username} : Player Added To Database`)
+        })
+        .catch(err => {
+            if (err.code == 11000) {
+                console.log(`Error: ${err.code} :: Player Already Exists`);
+            } else {
+                console.error(err.code)
+            }
+        });
+}
+
+function getPlayer(passed_username) {
+    Player.find({
+            username: passed_username
+        })
+        .then(doc => {
+            console.log(`Username: ${passed_username} : Player Found In Database`)
+            return doc
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+function updatePlayer(player) {
+    pass
+}
+
 // ###################################################
 
-var io = require('socket.io')(http);
 
-
-//var SOCKET_LIST = [];
-var PLAYER_LIST = []; // list of playerDataObjects
 
 var Player = function (id) {
     var self = {
@@ -50,16 +118,14 @@ io.on('connection', function (client) {
         
     });
 
-    client.on("print", function(word) {
-        console.log(word)
-    })
-    
+
     // 
     client.on('playerposition', function updatePlayerPosition(packet) {
         ClientNameToPlayerObject(packet[0]).tilePosition = packet[1];
     });
 
     client.on('disconnect', function () {
+
         disconectedPlayerIndex = ClientIDToPlayerListIndex(client.id)
 
         // send an update message to all clients that this player has disconected.
@@ -113,21 +179,19 @@ function getPlayerFromPos(playerPos)
         }
     }
     // else the player is not in the list and we need to return an error (-1)
+
 }
 
 
 // takes in a player name and will return the object connected to that name.
 // returns -1 if object was not found in list.
-function ClientNameToPlayerObject(username)
-{
-    for(var i = 0; i < PLAYER_LIST.length; i++)
-    {
-        if (PLAYER_LIST[i].username == username)
-        {
-            return PLAYER_LIST[i];
+function ClientNameToPlayerObject(username) {
+    for (var i = 0; i < CONNECTED_PLAYER_LIST.length; i++) {
+        if (CONNECTED_PLAYER_LIST[i].username == username) {
+            return CONNECTED_PLAYER_LIST[i];
         }
     }
-    
+
     return -1;
 }
 
@@ -145,4 +209,3 @@ function ClientIDToPlayerListIndex(id)
     return -1;
 }
 // --------------------------------------------------------------
-
