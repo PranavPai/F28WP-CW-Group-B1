@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" type="text/css" href="css/main.css">
+  <link rel="stylesheet" href="chatstyles.css">
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 </head>
@@ -15,6 +16,271 @@
   <button onclick="location.href='html/canvas.html'" type="button">Canvas</button>
   <canvas id="gameCanvas" width="1600" height="900"></canvas>
   <script src="js/movement.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    function init(){
+      handleTextInput();
+      preventEnterRefresh();
+    }
+
+  </script>
+  <script>
+    function getNumberOfOnlineUsers(){
+      let num = document.getElementById("current-users").getElementsByTagName("li").length;
+      console.log(document.getElementById("current-users").getElementsByTagName("li"))
+      document.getElementById("current-users-onlineusers").innerHTML = "Online Users (" + num/2 + ")";
+      return;
+    }
+  </script>
+
+  <script>
+    function preventEnterRefresh(){
+      document.getElementById("chat-form").addEventListener("submit", (e)=>{
+        e.preventDefault();
+      })
+    }
+  </script>
+  <script>
+    function messageSubmit(){
+      if(document.getElementById("chattextbox").value===""){
+        return;
+      }else if(document.getElementById("chattextbox").value.includes("/")){
+        console.log("command");
+        handleTextboxCommand()
+        return;
+      }
+      
+      if(!socket){
+        let socket = io();
+      }
+        socket.emit("chat message", document.getElementById("chattextbox").value);
+        socket.emit("not typing");
+        console.log(document.getElementById("chattextbox").value);
+        document.getElementById("chattextbox").value = ""
+  }
+
+</script>
+<script>
+  function handleTextboxCommand(){
+    let element = document.getElementById("chattextbox");
+    // changing username
+    if(element.value.includes("/setname")){
+      if(element.value.split(" ").length <= 1){
+        let li = document.createElement("li");
+        li.innerHTML = "<li class=\"connection-message\">INFO: /setname requires a name to set to (ex. /setname myUsername)</li>";
+        document.getElementById("messages").appendChild(li);
+        
+      }else{
+        let tempArray = element.value.split(" ");
+        tempArray.shift();
+        let tempStr = tempArray.join();
+
+        //console.log(tempStr);
+        socket.emit("change username", tempStr); //tempstr is the username
+      }
+      
+    }else{
+      let li = document.createElement("li");
+      li.innerHTML = "<li class=\"connection-message\">INFO: Invalid command.</li>"; // can prob create an innerhtml making function
+      document.getElementById("messages").appendChild(li);
+    }
+    socket.emit("not typing");
+    element.value = "" // clear textbox
+    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
+  }
+</script>
+<script>
+  function handleTextInput(){ //this creates multiple listeners, to be fixed
+    let typingTimer;
+    if(!socket){
+        let socket = io();
+    }
+    document.getElementById("chattextbox").addEventListener("keyup", ()=>{
+      clearTimeout(typingTimer)
+      socket.emit("typing");
+      typingTimer = setTimeout(()=>{
+        socket.emit("not typing");
+      }, 5000)
+    })   
+  }
+</script>
+ <script>
+  let socket = io();
+  let socketString = "";
+  socket.on("chat message", function(msg, newUser) {
+    generateUserMessage(msg, newUser);
+  });
+  
+  socket.on("typing", function(newUser, currentTypers){
+    // loop through currentTypers array, but fix the multiple listener issue beforehand
+    /*if(!socketString.includes(socketID)){
+      for(let i = 0; i<currentTypers.length; i++){
+        if(i === currentTypers.length-1) {
+          if(currentTypers.length > 1){
+            socketString = socketString.concat("and ", currentTypers[i]);
+          }else{
+            socketString = currentTypers[i];
+          }
+        }else{
+          socketString = socketString.concat(currentTypers[i], ", "); 
+        }
+        console.log(currentTypers)
+      }
+    }*/
+    let strToConcat = (newUser.name ? newUser.name : newUser.id);
+    if(!socketString.includes(strToConcat)){
+      if(currentTypers.length > 1){
+        socketString = socketString.concat(", ", strToConcat);
+      }else{
+        socketString = strToConcat;
+      }
+      console.log(currentTypers);
+    }
+    
+    if(currentTypers.length===0){
+      document.getElementById("typing-div").innerHTML = "</br>";  
+    }else if(currentTypers.length >1){
+      document.getElementById("typing-div").innerHTML = socketString + " are typing...";
+    }else{
+      document.getElementById("typing-div").innerHTML = socketString + " is typing...";
+    }  
+  });
+
+  socket.on("not typing", (newUser, currentTypers) =>{
+    let strToConcat = (newUser.name ? newUser.name : newUser.id)
+    socketString = ""
+    
+    if(!socketString.includes(strToConcat)){
+      if(currentTypers.length > 1){
+        socketString = socketString.concat(", ", strToConcat);
+      }else{
+        socketString = strToConcat;
+      }
+      console.log(currentTypers);
+    }
+
+  });
+
+  socket.on("update users list", (currentUsers) =>{
+    document.getElementById("current-users").innerHTML = "<span id=\"current-users-onlineusers\" style=\"font-weight: bold\">Online Users</span>";
+    
+    for(let i = 0; i<currentUsers.length; i++){
+      //console.log("currentusers.length:" + currentUsers.length)
+      let li = document.createElement("li");
+      li.innerHTML = "<li>"+(currentUsers[i].name ? currentUsers[i].name : currentUsers[i].id)+"</li>"
+      document.getElementById("current-users").appendChild(li);
+    }
+    // showing a notification when a new user joins stalls the program
+    getNumberOfOnlineUsers();
+  });
+
+  socket.on("user join", (newUser) => {
+    generateUserJoin(newUser);
+  })
+
+  socket.on("user leave", (newUser) => {
+    generateUserLeave(newUser);
+  })
+
+  socket.on("user changed name", (newUser)=> {
+    generateUserChangedName(newUser);
+  })
+
+  socket.on("send chat history", (chatHistory)=>{
+    // chatHistory should be ordered from oldest to newest
+    for (let element of chatHistory){
+      switch(element.event){
+        case "user join":
+          generateUserJoin(element.newUser, element.time);
+          break;
+        case "user leave":
+          generateUserLeave(element.newUser, element.time);
+          break;
+        case "chat message":
+          generateUserMessage(element.msg, element.newUser, element.time);
+          break;
+        case "user changed name":
+          generateUserChangedName(element.newUser, element.time);
+          break;
+      }
+    }
+  })
+</script>
+
+
+<script>
+  let generateUserJoin = (newUser, time=0)=>{
+    console.log("user joined");
+    let li = document.createElement("li");
+    let currentTime = new Date().toLocaleTimeString();
+    li.innerHTML = "<li class=\"connection-message\"><span class=\"msg-time\">" + (time===0 ? currentTime : time)+ " </span></br>"+(newUser.name ? newUser.name : newUser.id)+ " has connected. </li>"
+    document.getElementById("messages").appendChild(li);
+    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
+  }
+
+  let generateUserLeave = (newUser, time=0)=>{
+    let li = document.createElement("li");
+    let currentTime = new Date().toLocaleTimeString();
+    li.innerHTML = "<li class=\"connection-message\"><span class=\"msg-time\">" + (time===0 ? currentTime : time) + " </span></br>"+(newUser.name ? newUser.name : newUser.id)+ " has disconnected. </li>"
+    document.getElementById("messages").appendChild(li);
+    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
+  }
+
+  let generateUserChangedName = (newUser, time=0)=>{
+    let li = document.createElement("li");
+    let currentTime = new Date().toLocaleTimeString();
+    li.innerHTML = "<li class=\"connection-message\"><span class=\"msg-time\">" + (time===0 ? currentTime : time) + " </span></br>" + newUser.id + " has changed their name to " + newUser.name + ".</li>"
+    document.getElementById("messages").appendChild(li);
+    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
+  }
+
+  let generateUserMessage = (msg, newUser, time=0)=>{
+    let ul = document.getElementById("messages");
+    let li = document.createElement("li");
+    let currentTime = new Date().toLocaleTimeString();
+    console.log(currentTime);
+    li.innerHTML += "<li><span class=\"msg-time\">" + (time===0 ? currentTime : time) + " </span></br><span class=\"msg-username\">" + (newUser.name ? newUser.name : newUser.id) +":</span><span class=\"msg-msg\"> " + msg + "</span></li>"
+    //li.append(socketID + ": ");
+    //li.append(msg);
+    //li.style.cssText use a ternary operator or something to alternate this between two different colors
+    // work on the rest of the css tmrw
+    ul.appendChild(li);
+
+    // scroll to bottom of the element
+    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
+  }
+</script>
+
+<script>
+  function enterSubmit(event){
+    if(event.key === "Enter"){
+      msgSubmit();
+      return;
+    }
+  }
+</script>
+
+<body onload="init();">
+  <div id="message-div" class="message-div">
+    <ul id="messages" class="messages"></ul>
+    
+    <form id="chat-form" action="" onkeypress="return enterSubmit(event)">
+      <input class="chat-form-textbox" id="chattextbox" oninput="" autocomplete="off" />
+      <button class="chat-form-button" type="button" onclick="msgSubmit()">Send</button> 
+      <!--<button type="submit" onclick="test()">Send</button>-->
+    </form>
+    <div id="typing-div"></br></div>
+  </div>
+  <ul class="current-users" id="current-users"><span id="current-users-onlineusers" style="font-weight: bold">Online Users</span></ul>
+  
+  <div id="room-div" class="room-div">
+    
+    <ul id="room-div-ul" class="room-div-ul">
+      <span style="font-weight: bold">Rooms</span>
+      <li id="room-1" name="test" >Room 1 <a href="#" onclick="return roomSelect('test')">Connect</a></li>
+      <li id="room-2" name="test2" onclick="return roomSelect('test2')">Room 2</li>
+    </ul>
+  </div>
 
 </body>
 </html>
