@@ -100,9 +100,7 @@ client.on("playerTakeDamageFromServer", function PlayerTakeDamageFromServer(pack
 client.on("KilledAPlayer", function YouKilledAPlayer(you, playerYouKilled){
     if (you != undefined && you == player.username)
     {
-        player.stats.EXP += 30;
-
-        
+        player.stats.EXP += 30 * ( (100 - player.stats.level) / 100);
 
         if (player.stats.EXP > 100)
         {
