@@ -182,7 +182,7 @@ client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
 });
 
 client.on("PlayerDisconected", function RemoveDisconectedPlayerFromLocalPlayerList(disconectedPlayer){
-    console.log(disconectedPlayer.username)
+    //console.log(disconectedPlayer.username)
     playerPos = disconectedPlayer.tilePosition;
     gameMap[playerPos[0]][playerPos[1]] = 0; // siance the player has left the game we need to remove them from the world.
     // now remove them from the LocalPlayer.

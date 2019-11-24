@@ -36,18 +36,18 @@ var Player = function (id) {
 var connectedplayer;
 
 io.on('connection', function (client) {
+    
     // Gets called a new player joins the game
-    client.on('connectedusername', function initPlayer(username, tilePosition) {
+    client.on('connectedusername', function initPlayer(username, tilePos) {
         client.id = Math.random();
         connectedplayer = new Player(client.id);
         connectedplayer.username = username;
-        connectedplayer.tilePosition = tilePosition
-        
+        connectedplayer.tilePosition = tilePos
         if (!PLAYER_LIST.includes(connectedplayer))
         {
             PLAYER_LIST.push(connectedplayer); // only add the new player if they do not exist in the list.
-            //console.log(`New player joined: player count:  ${PLAYER_LIST.length}`);
         }
+        
     });
 
     client.on("print", function(word) {
@@ -61,12 +61,9 @@ io.on('connection', function (client) {
 
     client.on('disconnect', function () {
         disconectedPlayerIndex = ClientIDToPlayerListIndex(client.id)
-        
-        console.log(PLAYER_LIST[disconectedPlayerIndex]);
+
         // send an update message to all clients that this player has disconected.
         io.emit("PlayerDisconected", PLAYER_LIST[disconectedPlayerIndex]);
-
-
         PLAYER_LIST.splice(disconectedPlayerIndex);
     });
 
