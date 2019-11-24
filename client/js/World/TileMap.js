@@ -135,13 +135,11 @@ function TileToPixel(x,y)
 
 // takes in a tile position and returns what player is in that poition.
 // returns -1 if no player was found.
-function PosToLocalPlayer(pos)
+function PosToLocalPlayerIndex(pos)
 {
-    
     for (var i = 0; i < LocalPlayerList.length; i++) 
-    {
-        //console.log(LocalPlayerList.length);
-        if (LocalPlayerList[i].tilePosition == pos)
+    {   
+        if (LocalPlayerList[i][1][0] == pos[0] && LocalPlayerList[i][1][1] == pos[1])
             return LocalPlayerList[i];
     }
     return -1;
@@ -171,13 +169,13 @@ client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
             if (testUserName == packet[0] && packet[0] != player.username)
             {   
                 // save the last know location of this player.
-                var localTilePos = LocalPlayerList[i][1]
+                var localTilePos = LocalPlayerList[i][1]    
                 // check to see if that player has moved since the last update.
                 if (localTilePos[0] != packet[1][0] || localTilePos[1] != packet[1][1])
                 {   // player has moved since the last update.
                     // so move them to the new location.
-                    gameMap[localTilePos[0]][localTilePos[1]] = 0;
-                    gameMap[packet[1][0]][packet[1][1]] = 2;
+                    gameMap[ localTilePos[0] ][ localTilePos[1] ] = 0;
+                    gameMap[ packet[1][0] ][ packet[1][1] ] = 2;
 
                     listOf2s.push(packet[1]);
                     listOf2s.push(localTilePos);

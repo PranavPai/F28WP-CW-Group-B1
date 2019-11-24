@@ -60,14 +60,14 @@ function CheckPlayerInput(posX, posY)
             player.timeLastAttacked = Date.now();
             // we are trying to damage another player
             // find out what player we are trying to attack
-            console.log("DING");
-            playerToAttack = PosToLocalPlayer(LookTile);
+            
+            playerToAttack = PosToLocalPlayerIndex(LookTile);
+            // console.log(`playerToAttack: ${playerToAttack}`);
             if (playerToAttack != -1)
             {
                 // if the player has tryed to move onto a tile that has another player standing on it.
                 // we have found a player there.
                 // now deal damage to that player.
-                console.log("DING");
                 player.DealDamage(playerToAttack);
             }
         }
