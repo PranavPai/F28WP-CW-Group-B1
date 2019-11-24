@@ -8,12 +8,11 @@
 
   <link rel="stylesheet" type="text/css" href="../css/main.css">
 
-     <!----- <script src="index.js"></script> --->
-
 
 </head>
 
 <body>
+  <script src="../js/userauth.js"></script>
   <div class="limiter">
     <div class="title-box">
       <h1>Unnessacary Vaccuum</h1>
@@ -22,7 +21,7 @@
       <div class="login-wrap">
         <form id="login-form">
           <span class="login-form-title">
-            Player Register
+            SIGN UP
           </span>
 
 
@@ -30,29 +29,29 @@
             <div>
               <a href="../index.html">BACK</a><br>
               <p>
-                  <div class="login-input-wrap validate-input" data-validate="Valid email is required: ex@abc.xyz">
-                      <input class="login-input" type="text" name="email" placeholder="E-mail">
-                      <span class="input-focus"></span>
-                    </div>
+                <div class="login-input-wrap validate-input" data-validate="Valid email is required: example@abc.xyz">
+                  <input class="login-input" id="email" type="email" name="email" placeholder="E-mail">
+                  <span class="input-focus"></span>
+                </div>
 
-                    <div class="login-input-wrap validate-input" data-validate="Valid username is required: ppp1">
-                        <input class="login-input" type="text" name="username" placeholder="Username">
-                        <span class="input-focus"></span>
-                      </div>
+                <div class="login-input-wrap validate-input" data-validate="Username is required">
+                  <input class="login-input" id="username" type="text" name="username" placeholder="Username">
+                  <span class="input-focus"></span>
+                </div>
 
-                      <div class="login-input-wrap validate-input" data-validate="Password is required">
-                          <input class="login-input" type="password" name="password" placeholder="Password">
-                          <span class="input-focus"></span>
-                        </div>
+                <div class="login-input-wrap validate-input" data-validate="Password is required">
+                  <input class="login-input" id="password" type="password" name="password" placeholder="Password">
+                  <span class="input-focus"></span>
+                </div>
 
-                        <div class="container-login-form-button">
-                            <button class="login-form-button" onclick="location.href='../index.html'" type="button">
-                              JOIN NOW
-                            </button>
-                          </div>
+                <div class="container-login-form-button">
+                  <button class="login-form-button" onclick="register();" type="button">
+                    REGISTER
+                  </button>
+                </div>
 
                 <br><br>
-                
+
               </p>
             </div>
           </div>
@@ -63,4 +62,4 @@
 
 </body>
 
-</html> 
+</html>
