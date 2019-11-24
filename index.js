@@ -49,24 +49,6 @@ console.log(`Server Started on ${PORTNO}`);
 // Create a Socket.IO server and attach it to the http server
 var io = require('socket.io').listen(server);
 
-io.sockets.on('connection', function (socket) {
-    console.log("client connected");
-
-});
-
-// ###################################################
-// FUNCTIONS
-
-// From Client
-function onClientSendMessage(messageFromClient) {
-    formatedMessage = client.username + ": " + messageFromClient;
-    gameSocket.emit('chatMessageFromServer', formatedMessage);
-}
-
-function onGetClientPosition(positionpacket) {
-    ClientNameToPlayerObject(packet[0]).tilePosition = packet[1];
-}
-
 // ##################################################
 // DATABASE STUFF
 
@@ -85,7 +67,7 @@ function addPlayer(player) {
 }
 
 function getPlayer(passed_username) {
-    Player.find({
+    User.find({
             username: passed_username
         })
         .then(doc => {
@@ -102,7 +84,6 @@ function updatePlayer(player) {
 }
 
 // ###################################################
-
 
 
 var Player = function (id) {
@@ -127,19 +108,14 @@ io.on('connection', function (client) {
         if (!CONNECTED_PLAYER_LIST.includes(connectedplayer)) {
             CONNECTED_PLAYER_LIST.push(connectedplayer); // only add the new player if they do not exist in the list.
         }
-
     });
-
-
-    // 
+ 
     client.on('playerposition', function updatePlayerPosition(packet) {
         ClientNameToPlayerObject(packet[0]).tilePosition = packet[1];
     });
 
     client.on('disconnect', function () {
-
         disconectedPlayerIndex = ClientIDToPlayerListIndex(client.id)
-
         // send an update message to all clients that this player has disconected.
         io.emit("PlayerDisconected", CONNECTED_PLAYER_LIST[disconectedPlayerIndex]);
         CONNECTED_PLAYER_LIST.splice(disconectedPlayerIndex);
@@ -150,11 +126,9 @@ io.on('connection', function (client) {
     client.on('PlayerAttackOtherPlayer', function (packet) {
         // packet[0] == playerPos, packet[1] == damageAmount, packet[2] == the player who attacked
         player = getPlayerFromPos(packet[0]);
-
         if (packet[1] != undefined) {
             console.log(`${packet[2]} attacked ${player} at pos: ${packet[0]} and did ${packet[1]} to it`);
         }
-
     });
 });
 
@@ -166,6 +140,10 @@ setInterval(function () {
     UpdateAllConnectedClients();
 
 }, 1000 / 25);
+
+// ##############################################################################################
+//    FUNCTIONS
+// #############################################################################################
 
 // send and update of all players currently online to all players online.
 function UpdateAllConnectedClients() {
@@ -185,7 +163,6 @@ function getPlayerFromPos(playerPos) {
         }
     }
     // else the player is not in the list and we need to return an error (-1)
-
 }
 
 
@@ -197,7 +174,6 @@ function ClientNameToPlayerObject(username) {
             return CONNECTED_PLAYER_LIST[i];
         }
     }
-
     return -1;
 }
 
@@ -208,7 +184,13 @@ function ClientIDToPlayerListIndex(id) {
             return i;
         }
     }
-
     return -1;
 }
+
+// Chat Function
+function onClientSendMessage(messageFromClient) {
+    formatedMessage = client.username + ": " + messageFromClient;
+    gameSocket.emit('chatMessageFromServer', formatedMessage);
+}
+
 // --------------------------------------------------------------
