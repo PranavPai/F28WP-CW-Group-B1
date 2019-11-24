@@ -25,6 +25,20 @@ const mongodbOptions = {
     useCreateIndex: true
 };
 
+var user1 = {
+    "username": "defaultplayer1",
+    "email": "defaultplayer@mail.com",
+    "password": "helloworld",
+    "firstname": "Default",
+    "lastname": "Player",
+    "highscore": 
+      {
+        "highestNumberOfKills": 12,
+        "highestLevel": 5,
+        "longestTimeAlive": 75
+      }
+  };
+
 mongoose.connect(mongodbURI, mongodbOptions)
     .then(() => {
         console.log('Database connection successful')
@@ -52,8 +66,10 @@ var io = require('socket.io').listen(server);
 // ##################################################
 // DATABASE STUFF
 
-function addPlayer(player) {
-    player.save()
+// adds the passed user to the database, returns error if user exists
+async function addUser(passedUser) {
+    var newUser = new User(passedUser);
+    await newUser.save()
         .then(doc => {
             console.log(`Username: ${doc.username} : Player Added To Database`)
         })
@@ -66,12 +82,15 @@ function addPlayer(player) {
         });
 }
 
-function getPlayer(passed_username) {
-    User.find({
+// returns the the user document from the database for the given username
+// returns a list, so use ( getUser(username)[0] ) to get object
+async function getUser(passed_username) {
+    await User.find({
             username: passed_username
         })
         .then(doc => {
-            console.log(`Username: ${passed_username} : Player Found In Database`)
+            console.log(`Username: ${passed_username} : Player Found In Database`);
+            console.log(doc);
             return doc
         })
         .catch(err => {
@@ -79,18 +98,38 @@ function getPlayer(passed_username) {
         });
 }
 
-function updatePlayer(player) {
-    pass
+// returns the highscore object from the database for the connected player
+async function getPlayerHighScore(connectedplayer) {
+    var user = await User.findOne({
+        username: connectedplayer.username
+    });
+    return user.highscore;
+}
+
+// updates the highscores in the database for the connected player
+async function updatePlayerHighScore(connectedplayer) {
+    var user = await User.findOne({
+        username: connectedplayer.username
+    });
+    user.highscore.highestNumberOfKills = connectedplayer.highscore.currentNumberOfKills;
+    user.highscore.highestLevel = connectedplayer.highscore.currentLevel;
+    user.highscore.longestTimeAlive = connectedplayer.highscore.currentTimeAlive;
+    await user.save();
 }
 
 // ###################################################
 
-
+// player object to store in memory
 var Player = function (id) {
     var self = {
         tilePosition: [-1, -1],
         username: "defaultplayer",
-        id: id
+        id: id,
+        highscore: {
+            currentNumberOfKills: 0,
+            currentLevel: 0,
+            currentTimeAlive: 0
+        }
     }
     return self;
 }
@@ -98,6 +137,8 @@ var Player = function (id) {
 var connectedplayer;
 
 io.on('connection', function (client) {
+
+    console.log("client connected");
 
     // Gets called a new player joins the game
     client.on('connectedusername', function initPlayer(username, tilePos) {
@@ -138,7 +179,6 @@ io.on('connection', function (client) {
 */
 setInterval(function () {
     UpdateAllConnectedClients();
-
 }, 1000 / 25);
 
 // ##############################################################################################

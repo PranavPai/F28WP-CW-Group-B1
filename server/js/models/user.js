@@ -39,7 +39,7 @@ let userSchema = new mongoose.Schema({
         }
     },
     highscore: {
-        numberOfKills: {
+        highestNumberOfKills: {
             type: Number
         },
         highestLevel: {
@@ -48,9 +48,6 @@ let userSchema = new mongoose.Schema({
         longestTimeAlive: {
             type: Number
         }
-    },
-    isOnline: {
-        type: Boolean
     }
 })
 
