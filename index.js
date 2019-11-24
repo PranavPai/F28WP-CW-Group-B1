@@ -8,7 +8,7 @@ var CONNECTED_PLAYER_LIST = []; // list of playerDataObjects
 const express = require('express');
 const mongoose = require('mongoose');
 
-var Player = require('./server/js/models/player');
+var User = require('./server/js/models/user');
 // Create a new instance of Express
 const app = express();
 
