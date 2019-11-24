@@ -2,9 +2,7 @@ var client = io();
 
 var random = Math.random();
 
-// client.on('serverMsg', function(data) {
-//     console.log(data.msg);
-// });
+
 
 // client.emit('connectedusername', ""+ Math.floor(10 * Math.random()));
 // client.emit("print", "now");
