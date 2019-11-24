@@ -7,330 +7,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" type="text/css" href="css/main.css">
-  <link rel="stylesheet" href="chatstyles.css">
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
 </head>
 
 <body>
-  <button onclick="location.href='html/canvas.html'" type="button">Canvas</button>
-  <canvas id="gameCanvas" width="1600" height="900"></canvas>
-  <script src="js/movement.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    function init(){
-      handleTextInput();
-      preventEnterRefresh();
-    }
+  <div class="limiter">
+    <div class="title-box">
+      <h1>Unnessacary Vaccuum</h1>
+    </div>
+    <div class="credential-container">
+      <div class="login-wrap">
+        <form id="login-form">
+          <span class="login-form-title">
+            Player Login
+          </span>
 
-  </script>
-  <script>
-    function getNumberOfOnlineUsers(){
-      let num = document.getElementById("current-users").getElementsByTagName("li").length;
-      console.log(document.getElementById("current-users").getElementsByTagName("li"))
-      document.getElementById("current-users-onlineusers").innerHTML = "Online Users (" + num/2 + ")";
-      return;
-    }
-  </script>
+          <div class="login-input-wrap validate-input" data-validate="Valid email is required: ex@abc.xyz">
+            <input class="login-input" type="text" name="username" placeholder="Username">
+            <span class="input-focus"></span>
+          </div>
 
-<script>
-  function preventEnterRefresh(){
-    document.getElementById("chat-form").addEventListener("submit", (e)=>{
-      e.preventDefault();
-    })
-  }
-</script>
-<!--
-<script>
-    function test(){
-      if(!socket){
-        let socket = io();
-      }
-      document.getElementById("chat-form").addEventListener("submit", (e) =>{
-        e.preventDefault();
-        socket.emit("chat message", document.getElementById("chattextbox").value);
-        console.log(document.getElementById("chattextbox").value);
-        document.getElementById("chattextbox").value = ""
-        return false;
-    })
-  }
-</script>
--->
-<script>
-    function msgSubmit(){
-      if(document.getElementById("chattextbox").value===""){
-        return;
-      }else if(document.getElementById("chattextbox").value.includes("/")){
-        console.log("command");
-        handleTextboxCommand()
-        return;
-      }
-      
-      if(!socket){
-        let socket = io();
-      }
-        socket.emit("chat message", document.getElementById("chattextbox").value);
-        socket.emit("not typing");
-        console.log(document.getElementById("chattextbox").value);
-        document.getElementById("chattextbox").value = ""
-  }
-  // code that is triggered whenever choosing a room
-  function roomSelect(roomName){
-      console.log(roomName);
-      if(!socket){
-        let socket = io();
-      }
-      
-      //document.getElementById()
-      socket.emit("room select", roomName);
-      return;
-    }
-</script>
+          <div class="login-input-wrap validate-input" data-validate="Password is required">
+            <input class="login-input" type="password" name="password" placeholder="Password">
+            <span class="input-focus"></span>
+          </div>
 
-<script>
-  function handleTextboxCommand(){
-    let element = document.getElementById("chattextbox");
-    // changing username
-    if(element.value.includes("/setname")){
-      if(element.value.split(" ").length <= 1){
-        let li = document.createElement("li");
-        li.innerHTML = "<li class=\"connection-message\">INFO: /setname requires a name to set to (ex. /setname myUsername)</li>";
-        document.getElementById("messages").appendChild(li);
-        
-      }else{
-        let tempArray = element.value.split(" ");
-        tempArray.shift();
-        let tempStr = tempArray.join();
+          <div class="container-login-form-button">
+            <button class="login-form-button" onclick="location.href='html/game.html'" type="button">
+              Login
+            </button>
+          </div>
 
-        //console.log(tempStr);
-        socket.emit("change username", tempStr); //tempstr is the username
-      }
-      
-    }else{
-      let li = document.createElement("li");
-      li.innerHTML = "<li class=\"connection-message\">INFO: Invalid command.</li>"; // can prob create an innerhtml making function
-      document.getElementById("messages").appendChild(li);
-    }
-    socket.emit("not typing");
-    element.value = "" // clear textbox
-    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
-  }
-</script>
+          <div class="login-text-center">
+            <span class="txt1">
+              Forgot
+            </span>
+            <a class="txt2" href="#">
+              Username / Password?
+            </a>
+          </div>
 
-<script>
-  function handleTextInput(){ //this creates multiple listeners, fix this 
-    let typingTimer;
-    if(!socket){
-        let socket = io();
-    }
-    document.getElementById("chattextbox").addEventListener("keyup", ()=>{
-      clearTimeout(typingTimer)
-      socket.emit("typing");
-      typingTimer = setTimeout(()=>{
-        socket.emit("not typing");
-      }, 5000)
-    })
-    
-  }
-</script>
-
-<!--
-  code for adding messages to ul
--->
-<script>
-  let socket = io();
-  let socketString = "";
-  socket.on("chat message", function(msg, newUser) {
-    generateUserMessage(msg, newUser);
-  });
-  
-  socket.on("typing", function(newUser, currentTypers){
-    // loop through currentTypers array, but fix the multiple listener issue beforehand
-    /*if(!socketString.includes(socketID)){
-      for(let i = 0; i<currentTypers.length; i++){
-        if(i === currentTypers.length-1) {
-          if(currentTypers.length > 1){
-            socketString = socketString.concat("and ", currentTypers[i]);
-          }else{
-            socketString = currentTypers[i];
-          }
-        }else{
-          socketString = socketString.concat(currentTypers[i], ", "); 
-        }
-        console.log(currentTypers)
-      }
-    }*/
-    let strToConcat = (newUser.name ? newUser.name : newUser.id);
-    if(!socketString.includes(strToConcat)){
-      if(currentTypers.length > 1){
-        socketString = socketString.concat(", ", strToConcat); // find a way to add "and" case
-      }else{
-        socketString = strToConcat;
-      }
-      console.log(currentTypers);
-    }
-    
-    if(currentTypers.length===0){
-      document.getElementById("typing-div").innerHTML = "</br>";  
-    }else if(currentTypers.length >1){
-      document.getElementById("typing-div").innerHTML = socketString + " are typing...";
-    }else{
-      document.getElementById("typing-div").innerHTML = socketString + " is typing...";
-    }  
-  });
-
-  socket.on("not typing", (newUser, currentTypers) =>{
-    let strToConcat = (newUser.name ? newUser.name : newUser.id)
-    socketString = ""
-    
-    if(!socketString.includes(strToConcat)){
-      if(currentTypers.length > 1){
-        socketString = socketString.concat(", ", strToConcat);
-      }else{
-        socketString = strToConcat;
-      }
-      console.log(currentTypers);
-    }
-
-    if(currentTypers.length===0){
-      document.getElementById("typing-div").innerHTML = "</br>";  
-    }else if(currentTypers.length >1){
-      document.getElementById("typing-div").innerHTML = socketString + " are typing...";
-    }else{
-      document.getElementById("typing-div").innerHTML = socketString + " is typing...";
-    }
-  });
-
-  socket.on("update users list", (currentUsers) =>{
-    // clear ul
-    document.getElementById("current-users").innerHTML = "<span id=\"current-users-onlineusers\" style=\"font-weight: bold\">Online Users</span>";
-    
-    for(let i = 0; i<currentUsers.length; i++){
-      //console.log("currentusers.length:" + currentUsers.length)
-      let li = document.createElement("li");
-      li.innerHTML = "<li>"+(currentUsers[i].name ? currentUsers[i].name : currentUsers[i].id)+"</li>"
-      document.getElementById("current-users").appendChild(li);
-    }
-    // showing a notification when a new user joins stalls the program???
-    getNumberOfOnlineUsers();
-  });
-
-  socket.on("user join", (newUser) => {
-    generateUserJoin(newUser);
-  })
-
-  socket.on("user leave", (newUser) => {
-    generateUserLeave(newUser);
-  })
-
-  socket.on("user changed name", (newUser)=> {
-    generateUserChangedName(newUser);
-  })
-
-  socket.on("room join", (newUser, roomName)=>{
-    generateRoomJoinMessage(newUser, roomName)
-  })
-
-  socket.on("send chat history", (chatHistory)=>{
-    // chatHistory should be ordered from oldest to newest
-    for (let element of chatHistory){
-      switch(element.event){
-        case "user join":
-          generateUserJoin(element.newUser, element.time);
-          break;
-        case "user leave":
-          generateUserLeave(element.newUser, element.time);
-          break;
-        case "chat message":
-          generateUserMessage(element.msg, element.newUser, element.time);
-          break;
-        case "user changed name":
-          generateUserChangedName(element.newUser, element.time);
-          break;
-      }
-    }
-  })
-</script>
-
-<!--helper functions for generating text-->
-<script>
-  let generateUserJoin = (newUser, time=0)=>{
-    console.log("user joined");
-    let li = document.createElement("li");
-    let currentTime = new Date().toLocaleTimeString();
-    li.innerHTML = "<li class=\"connection-message\"><span class=\"msg-time\">" + (time===0 ? currentTime : time)+ " </span></br>"+(newUser.name ? newUser.name : newUser.id)+ " has connected. </li>"
-    document.getElementById("messages").appendChild(li);
-    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
-  }
-
-  let generateUserLeave = (newUser, time=0)=>{
-    let li = document.createElement("li");
-    let currentTime = new Date().toLocaleTimeString();
-    li.innerHTML = "<li class=\"connection-message\"><span class=\"msg-time\">" + (time===0 ? currentTime : time) + " </span></br>"+(newUser.name ? newUser.name : newUser.id)+ " has disconnected. </li>"
-    document.getElementById("messages").appendChild(li);
-    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
-  }
-
-  let generateUserChangedName = (newUser, time=0)=>{
-    let li = document.createElement("li");
-    let currentTime = new Date().toLocaleTimeString();
-    li.innerHTML = "<li class=\"connection-message\"><span class=\"msg-time\">" + (time===0 ? currentTime : time) + " </span></br>" + newUser.id + " has changed their name to " + newUser.name + ".</li>"
-    document.getElementById("messages").appendChild(li);
-    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
-  }
-
-  let generateUserMessage = (msg, newUser, time=0)=>{
-    let ul = document.getElementById("messages");
-    let li = document.createElement("li");
-    let currentTime = new Date().toLocaleTimeString();
-    console.log(currentTime);
-    li.innerHTML += "<li><span class=\"msg-time\">" + (time===0 ? currentTime : time) + " </span></br><span class=\"msg-username\">" + (newUser.name ? newUser.name : newUser.id) +":</span><span class=\"msg-msg\"> " + msg + "</span></li>"
-    //li.append(socketID + ": ");
-    //li.append(msg);
-    //li.style.cssText use a ternary operator or something to alternate this between two different colors
-    // work on the rest of the css tmrw
-    ul.appendChild(li);
-
-    // scroll to bottom of the element
-    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
-  }
-
-  let generateRoomJoinMessage = (newUser, roomName, time=0)=>{
-    let li = document.createElement("li");
-    let currentTime = new Date().toLocaleTimeString();
-    li.innerHTML = "<li class=\"connection-message\"><span class=\"msg-time\">" + (time===0 ? currentTime : time) + " </span></br>" + (newUser.name ? newUser.name : newUser.id) + " has joined room " + roomName + ".</li>"
-    document.getElementById("messages").appendChild(li);
-    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight - document.getElementById("messages").clientHeight;
-
-  }
-
-</script>
-
-<script>
-  function enterSubmit(event){
-    if(event.key === "Enter"){
-      msgSubmit();
-      return;
-    }
-  }
-</script>
-
-<body onload="init();">
-  <div id="message-div" class="message-div">
-    <ul id="messages" class="messages"></ul>
-    
-    <form id="chat-form" action="" onkeypress="return enterSubmit(event)">
-      <input class="chat-form-textbox" id="chattextbox" oninput="" autocomplete="off" />
-      <button class="chat-form-button" type="button" onclick="msgSubmit()">Send</button> 
-      <!--<button type="submit" onclick="test()">Send</button>-->
-    </form>
-    <div id="typing-div"></br></div>
+          <div class="login-text-center">
+            <a class="txt2" href="#">
+              Create your Account
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <div class="info-div">
-    <div class="current-users">
-      <ul class="current-users-ul" id="current-users"><span id="current-users-onlineusers" style="font-weight: bold">Online Users</span></ul>
-    </div>
-    
 </body>
+
 </html>
