@@ -35,20 +35,19 @@ var Player = function (id) {
 
 var connectedplayer;
 
-
 io.on('connection', function (client) {
+    
     // Gets called a new player joins the game
-    client.on('connectedusername', function initPlayer(username, tilePosition) {
+    client.on('connectedusername', function initPlayer(username, tilePos) {
         client.id = Math.random();
         connectedplayer = new Player(client.id);
         connectedplayer.username = username;
-        connectedplayer.tilePosition = tilePosition
-        
+        connectedplayer.tilePosition = tilePos
         if (!PLAYER_LIST.includes(connectedplayer))
         {
             PLAYER_LIST.push(connectedplayer); // only add the new player if they do not exist in the list.
-            //console.log(`New player joined: player count:  ${PLAYER_LIST.length}`);
         }
+        
     });
 
     client.on("print", function(word) {
@@ -61,23 +60,61 @@ io.on('connection', function (client) {
     });
 
     client.on('disconnect', function () {
-        PLAYER_LIST.splice(ClientIDToPlayerListIndex(client.id),1);
+        disconectedPlayerIndex = ClientIDToPlayerListIndex(client.id)
+
+        // send an update message to all clients that this player has disconected.
+        io.emit("PlayerDisconected", PLAYER_LIST[disconectedPlayerIndex]);
+        PLAYER_LIST.splice(disconectedPlayerIndex);
+    });
+
+    // packet[0] is the player pos that is getting attacked.
+    // packet[1] is the amount that we are damaging the player by, before defence is used.
+    client.on('PlayerAttackOtherPlayer', function(packet) { 
+        // packet[0] == playerPos, packet[1] == damageAmount, packet[2] == the player who attacked
+        player = getPlayerFromPos(packet[0]);
+
+        if (packet[1] != undefined)
+        {        
+            console.log(`${packet[2]} attacked ${player} at pos: ${packet[0]} and did ${packet[1]} to it`);
+        }
+        
     });
 });
 
-// takes in a given ID and finds the index for that player, returns -1 if not found.
-function ClientIDToPlayerListIndex(id)
+/*
+    server every 45 ms the server will loop though all online players and transmit their locations
+    the server does not give a dam if the client does not get the packet.
+*/
+setInterval(function () {
+    UpdateAllConnectedClients();
+    
+}, 1000 / 25);
+
+// send and update of all players currently online to all players online.
+function UpdateAllConnectedClients()
 {
-    for(var i = 0; i < PLAYER_LIST.length; i++)
+    // loop though all players in the list and emit their information to the clients
+    for (var i = 0; i < PLAYER_LIST.length; i++)
     {
-        if (PLAYER_LIST[i].id == id)
+        var packet = [PLAYER_LIST[i].username, PLAYER_LIST[i].tilePosition];
+        io.emit("playerPostionsFromServer", packet);
+    }
+}
+
+// takes in a players position then finds and returns that player from the list. 
+// returns -1 if not found
+function getPlayerFromPos(playerPos)
+{
+    for (var index = 0; index < PLAYER_LIST.length; index++)
+    {   // is the player in the list
+        if (PLAYER_LIST[index].tilePosition[0] == playerPos[0] && PLAYER_LIST[index].tilePosition[1] == playerPos[1] )
         {
-            return i;
+            console.log("FOUND");
         }
     }
-    
-    return -1;
+    // else the player is not in the list and we need to return an error (-1)
 }
+
 
 // takes in a player name and will return the object connected to that name.
 // returns -1 if object was not found in list.
@@ -94,39 +131,18 @@ function ClientNameToPlayerObject(username)
     return -1;
 }
 
-
-// setInterval(function () {
-//     var pack = []
-//     for (var i in PLAYER_LIST[i]) {
-//         let player = PLAYER_LIST[i];
-//         pack.push({
-//             username: player.username,
-//             tilePosition: player.tilePosition
-//         });
-//     }
-//     for(var i in SOCKET_LIST[i]){
-//         var client = SOCKET_LIST[i];
-//         io.emit('playerPostionsFromServer', pack);
-//     }
-// }, 1000 / 25);
-
-
-/*
-    server every 45 ms the server will loop though all online players and transmit their locations
-    the server does not give a dam if the client does not get the packet.
-*/
-setInterval(function () {
-    // loop though all players in the list and emit their information to the clients
-    
-
-    for (var i = 0; i < PLAYER_LIST.length; i++)
+// takes in a given ID and finds the index for that player, returns -1 if not found.
+function ClientIDToPlayerListIndex(id)
+{
+    for(var i = 0; i < PLAYER_LIST.length; i++)
     {
-        var packet = [PLAYER_LIST[i].username, PLAYER_LIST[i].tilePosition];
-        io.emit("playerPostionsFromServer", packet);
+        if (PLAYER_LIST[i].id == id)
+        {
+            return i;
+        }
     }
     
-    
-
-}, 1000 / 25);
-
+    return -1;
+}
 // --------------------------------------------------------------
+
