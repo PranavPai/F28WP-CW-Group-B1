@@ -12,7 +12,7 @@ body {
     overflow: hidden; /*  Disable scrollbars */
     display: block;  /* No floating content on sides */
 
-}   
+}  
 
 #canvasContainer
 {
@@ -54,6 +54,19 @@ body {
     display: block;  /* No floating content on sides */
 }
 
+.StatsText
+{
+    font-family: serif;
+    font-weight: bold;
+    text-transform: capitalize;
+    text-align: left;
+    font-size: 26px;
+    letter-spacing: 3px;
+    word-spacing: -4px;
+    color: rgb(0, 0, 0);
+    background-color: rgba(71, 71, 71, 0);
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: 80% 20%;
@@ -73,9 +86,9 @@ body {
 .HealthStatBar 
 {
     position: relative;
-    width: 80%;
+    width: 98%;
     height: 5%;
-    border: 1px solid #000000;
+    border: 2px solid #000000;
 }
 
 .HealthBarValue
@@ -103,9 +116,9 @@ body {
 .EXPStatBar 
 {
     position: relative;
-    width: 80%;
+    width: 98%;
     height: 5%;
-    border: 1px solid #000000;
+    border: 2px solid #000000;
 }
 
 .EXPBarValue
@@ -128,3 +141,4 @@ body {
     transition: width 0.5s;
 }
 /* END EXP bar CSS */
+

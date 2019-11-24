@@ -55,7 +55,8 @@ function CheckPlayerInput(posX, posY)
             gameMap[posX][posY] = 0
             player.movePlayerTo(LookTile[0],LookTile[1])
         }
-        else if (gameMap[LookTile[0]][LookTile[1]] == 2 && player.timeLastAttacked + player.attackSpeed < Date.now())
+        else if (gameMap[LookTile[0]][LookTile[1]] == 2 
+            && player.timeLastAttacked + player.attackSpeed < Date.now())
         {
             player.timeLastAttacked = Date.now();
             // we are trying to damage another player

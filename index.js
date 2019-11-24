@@ -133,6 +133,13 @@ io.on('connection', function (client) {
             // console.log(`${packet[2]} attacked ${player.username} at pos: ${packet[0]} and did ${packet[1]} to it`);
         }
     });
+
+    client.on('PlayerKill', function (killer, killedPlayer) {
+        if (killedPlayer != undefined && killer != undefined) // check if we are getting garbage
+        {
+            io.emit('KilledAPlayer', killer, killedPlayer);
+        }
+    });
 });
 
 /*

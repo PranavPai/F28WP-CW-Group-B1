@@ -21,7 +21,7 @@
   <script src="../js/World/GameMap.js"></script>
   <script src="../js/World/TileMap.js"></script>
  
-  <script src="../js/Player/HealthBar.js"></script>
+  <script src="../js/Player/ProgressBar.js"></script>
 
   <div class="grid-container">
 
@@ -38,20 +38,26 @@
 
   <div class="Stats">
     
-      <h1>Health</h1>
+      <h1 class="StatsText">Health</h1>
       <div class="HealthStatBar">
         <div class="HealthBarValue">65%</div>
         <div class="HealthBarFill"></div>
       </div>
       
-      <h1>EXP</h1>
+      <h1 class="StatsText">EXP</h1>
       <div class="EXPStatBar">
         <div class="EXPBarValue">65%</div>
         <div class="EXPBarFill"></div>
       </div>
 
       <script>
-        new ProgressBar(document.querySelector('.HealthStatBar', 75));
+        progressBars = [];
+        // index 0 HealthBar
+        // index 1 EXPBar
+        progressBars.push(new ProgressBar(document.querySelector('.HealthStatBar'),
+                                           100, ".HealthBarValue", ".HealthBarFill"));
+        progressBars.push(new ProgressBar(document.querySelector('.EXPStatBar'), 
+                                            0, ".EXPBarValue", ".EXPBarFill"));
       </script>
 
 
@@ -84,7 +90,7 @@
               ctx.fill();
             </script>
       </body>
-    </div>
+  </div>
 </div>
 </body>
 
