@@ -20,7 +20,6 @@ var lastFrameTime = 0; // time since last frame was drawing in mm
 
 var gameMap = getGameMap();
 
-//var player = new Character();
 var player = new Character();
 
 // Camera
@@ -136,13 +135,11 @@ function TileToPixel(x,y)
 
 // takes in a tile position and returns what player is in that poition.
 // returns -1 if no player was found.
-function PosToLocalPlayer(pos)
+function PosToLocalPlayerIndex(pos)
 {
-    
     for (var i = 0; i < LocalPlayerList.length; i++) 
-    {
-        console.log(LocalPlayerList.length);
-        if (LocalPlayerList[i].tilePosition == pos)
+    {   
+        if (LocalPlayerList[i][1][0] == pos[0] && LocalPlayerList[i][1][1] == pos[1])
             return LocalPlayerList[i];
     }
     return -1;
@@ -161,38 +158,45 @@ var listOf2s = [];
     that players location on the local client map.
 */
 client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
-{  
+{  // packet[0] == username packet[1] == tilepos
     // loop though all players in the local list 
-    for (var i = 0; i < LocalPlayerList.length; i++) 
+    
+    if (packet[0] != player.username)
     {
-        var testUserName = LocalPlayerList[i][0]
-        if (testUserName == packet[0] && packet[0] != player.username)
-        {   
-            // save the last know location of this player.
-            var localTilePos = LocalPlayerList[i][1]
-            // check to see if that player has moved since the last update.
-            if (localTilePos[0] != packet[1][0] || localTilePos[1] != packet[1][1])
-            {   // player has moved since the last update.
-                // so move them to the new location.
-                gameMap[localTilePos[0]][localTilePos[1]] = 0;
-                gameMap[packet[1][0]][packet[1][1]] = 2;
+        for (var i = 0; i < LocalPlayerList.length; i++) 
+        {
+            var testUserName = LocalPlayerList[i][0]
+            if (testUserName == packet[0] && packet[0] != player.username)
+            {   
+                // save the last know location of this player.
+                var localTilePos = LocalPlayerList[i][1]    
+                // check to see if that player has moved since the last update.
+                if (localTilePos[0] != packet[1][0] || localTilePos[1] != packet[1][1])
+                {   // player has moved since the last update.
+                    // so move them to the new location.
+                    gameMap[ localTilePos[0] ][ localTilePos[1] ] = 0;
+                    gameMap[ packet[1][0] ][ packet[1][1] ] = 2;
 
-                listOf2s.push(packet[1]);
-                listOf2s.push(localTilePos);
+                    listOf2s.push(packet[1]);
+                    listOf2s.push(localTilePos);
 
-                LocalPlayerList[i][1] = packet[1];
+                    LocalPlayerList[i][1] = packet[1];
+                }
+                
+                //else that player has not moved since the last updat.
+                // so we do not have to do anything.
+                
+                return // we found the player that needs to be updated so we can are done
+                // and we can now wait for the next packet to come.
             }
-            
-            //else that player has not moved since the last updat.
-            // so we do not have to do anything.
-            
-            return // we found the player that needs to be updated so we can are done
-            // and we can now wait for the next packet to come.
+
         }
+
+        // if we are there then we need to add the to list.
+        // as the this is a new player that has join the game.
+        // console.log("DIGN: " + LocalPlayerList.length);
+        LocalPlayerList.push(packet);
     }
-    // if we are there then we need to add the to list.
-    // as the this is a new player that has join the game.
-    LocalPlayerList.push(packet);
 });
 
 client.on("PlayerDisconected", function RemoveDisconectedPlayerFromLocalPlayerList(disconectedPlayer){
