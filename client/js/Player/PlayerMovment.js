@@ -78,9 +78,16 @@ function CheckPlayerInput(posX, posY)
         else if (gameMap[LookTile[0]][LookTile[1]] == 2)
         {
             // we are trying to damage another player
-            // send a message to the server selling them what player we want to damage,
-            // and the amount that we want to do.
-            client.emit('PlayerAttackOtherPlayer', [player.tilePosition, player.stats.attack, player.username]);
+            //find out what player we are trying to attack
+            playerToAttack = PosToLocalPlayer(LookTile);
+            if (playerToAttack != -1)
+            {
+                // if the player has tryed to move onto a tile that has another player standing on it.
+                // we have found a player there.
+                // now deal damage to that player.
+                console.log("DING");
+                player.DealDamage(playerToAttack);
+            }
         }
     }
 }

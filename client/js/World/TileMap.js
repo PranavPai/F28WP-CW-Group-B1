@@ -134,6 +134,20 @@ function TileToPixel(x,y)
     return [pixelX, pixelY]
 }
 
+// takes in a tile position and returns what player is in that poition.
+// returns -1 if no player was found.
+function PosToLocalPlayer(pos)
+{
+    
+    for (var i = 0; i < LocalPlayerList.length; i++) 
+    {
+        console.log(LocalPlayerList.length);
+        if (LocalPlayerList[i].tilePosition == pos)
+            return LocalPlayerList[i];
+    }
+    return -1;
+}
+
 // holds a list of tile postions of all 2s in the map.
 var listOf2s = [];
 
@@ -189,3 +203,4 @@ client.on("PlayerDisconected", function RemoveDisconectedPlayerFromLocalPlayerLi
     // because we do not need to keep doing anything to them.
     LocalPlayerList.splice( [disconectedPlayer.username, playerPos] );
 });
+

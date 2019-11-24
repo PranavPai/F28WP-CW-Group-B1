@@ -38,8 +38,8 @@ Character.prototype.movePlayerTo = function (x, y) {
 };
 
 Character.prototype.DealDamage = function(targetPlayer){
-    // if the player has tryed to move onto a tile that has another player standing on it.
     // then we want to damage that player.
+    client.emit('PlayerAttackOtherPlayer', [player.tilePosition, player.stats.attack, player.username]);
     Console.log(`Damage done: ${attack}`)
 }
 
