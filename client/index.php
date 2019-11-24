@@ -29,6 +29,13 @@ $(document).ready(function(){
 		if(exit==true){window.location = 'index.php?logout=true';}		
 	});
 });
+	//If user submits the form
+	$("#submitmsg").click(function(){	
+		var clientmsg = $("#usermsg").val();
+		$.post("post.php", {text: clientmsg});				
+		$("#usermsg").attr("value", "");
+		return false;
+	});
 </script>
 <?phpif(isset($_GET['logout'])){ 
      
@@ -70,7 +77,7 @@ if(isset($_POST['enter'])){
 }
 ?>
 
-<?php // showing the login form in case a user has not logged in
+<?php // showing the login form in case the user has not logged in therefore, not creating the session
 if(!isset($_SESSION['name'])){
     loginForm();
 }

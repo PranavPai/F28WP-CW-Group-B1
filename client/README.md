@@ -1,3 +1,2 @@
 # THIS IS THE CLIENT SIDE DOCUMENTATION
-
-Documentation goes here
+Our Multi-player game is a simple
