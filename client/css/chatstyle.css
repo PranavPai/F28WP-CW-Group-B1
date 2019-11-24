@@ -1,68 +1,56 @@
-html{
-    background-color: rgb(97, 165, 80);
-    font-family: 'Segoe UI';
-  }
-  
-  .message-div{
-    float: left;
-  }
-  
-  .messages{
-    list-style-type: none;
-    padding-left: 0;
-    height: 50%;
-    width: 50%;
-    overflow-y: auto;
-    overflow-wrap: break-word;
-  }
-  .msg-username{
-    font-weight: bold;
-    color: rgb(170, 48, 144);
-  }
-  .msg-time{
-    font-weight: lighter;
-    font-style: italic;
-    font-size: 12px;
-  }
-  .typing-div{
-    font-size: 8px;
-  }
-  .current-users{
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  }
-  
-  .connection-message{
-    font-style: italic;
-    font-size: 12px;
-  }
-  
-  .chat-form-button{
-    background-color: white;
-    border: 1px solid white;
-    border-radius: 12px;
-    padding: 5px;
-    transition: background-color 0.25s;
-  }
-  
-  .chat-form-button:hover{
-    background-color: rgb(222,222,222)
-  }
-  
-  .chat-form-button:active{
-    background-color: rgb(168, 167, 167)
-  }
-  
-  
-  .chat-form-textbox{
-    padding: 5px;
-    border: 1px solid white;
-    border-radius: 12px;
-  }
-  
-  .room-div{
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    /*word-break: break-all;*/
-  }
+body {
+  font:12px arial;
+  color: #222;
+  text-align:center;
+  padding:35px; }
+
+form, p, span {
+  margin:0;
+  padding:0; }
+
+input { font:12px arial; }
+
+a {
+  color:#0000FF;
+  text-decoration:none; }
+
+  a:hover { text-decoration:underline; }
+
+#wrapper, #loginform {
+  margin:0 auto;
+  padding-bottom:25px;
+  background:#EBF4FB;
+  width:504px;
+  border:1px solid #ACD8F0; }
+
+#loginform { padding-top:18px; }
+
+  #loginform p { margin: 5px; }
+
+#chatbox {
+  text-align:left;
+  margin:0 auto;
+  margin-bottom:25px;
+  padding:10px;
+  background:#fff;
+  height:270px;
+  width:430px;
+  border:1px solid #ACD8F0;
+  overflow:auto; }
+
+#usermsg {
+  width:395px;
+  border:1px solid #ACD8F0; }
+
+#submit { width: 60px; }
+
+.error { color: #ff0000; }
+
+#menu { padding:12.5px 25px 12.5px 25px; }
+
+.welcome { float:left; }
+
+.logout { float:right; }
+
+.msgln { margin:0 0 2px 0; }
   
