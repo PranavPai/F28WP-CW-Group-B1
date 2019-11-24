@@ -1,3 +1,5 @@
+var client = io();
+
 function Character() {
     this.username = Math.random();
     this.tilePosition = [1, 1];
