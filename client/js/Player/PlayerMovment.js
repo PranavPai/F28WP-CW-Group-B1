@@ -37,26 +37,6 @@ function CheckPlayerInput(posX, posY)
     The player moves around the map by the valid empty space, map[x][y] == 0, to a 2.
     Doing so will also prevent players from walking over one and other.
     */
-    // if (keyDown[38] && gameMap[posX][posY-1] == 0)
-    // { 
-    //     gameMap[posX][posY] = 0
-    //     player.movePlayerTo(posX,posY-1)
-    // }
-    // else if (keyDown[40] &&  gameMap[posX][posY+1] == 0)
-    // { 
-    //     gameMap[posX][posY] = 0
-    //     player.movePlayerTo(posX,posY+1)
-    // }
-    // else if (keyDown[37] &&  gameMap[posX-1][posY] == 0)
-    // { 
-    //     gameMap[posX][posY] = 0
-    //     player.movePlayerTo(posX-1,posY)
-    // }
-    // else if (keyDown[39] &&  gameMap[posX+1][posY] == 0)
-    // { 
-    //     gameMap[posX][posY] = 0
-    //     player.movePlayerTo(posX+1,posY)
-    // }
 
     var LookTile = [posX,posY];
     if (keyDown[38])
@@ -75,10 +55,12 @@ function CheckPlayerInput(posX, posY)
             gameMap[posX][posY] = 0
             player.movePlayerTo(LookTile[0],LookTile[1])
         }
-        else if (gameMap[LookTile[0]][LookTile[1]] == 2)
+        else if (gameMap[LookTile[0]][LookTile[1]] == 2 && player.timeLastAttacked + player.attackSpeed < Date.now())
         {
+            player.timeLastAttacked = Date.now();
             // we are trying to damage another player
-            //find out what player we are trying to attack
+            // find out what player we are trying to attack
+            console.log("DING");
             playerToAttack = PosToLocalPlayer(LookTile);
             if (playerToAttack != -1)
             {

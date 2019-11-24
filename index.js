@@ -150,6 +150,7 @@ function UpdateAllConnectedClients() {
     // loop though all players in the list and emit their information to the clients
     for (var i = 0; i < CONNECTED_PLAYER_LIST.length; i++) {
         var packet = [CONNECTED_PLAYER_LIST[i].username, CONNECTED_PLAYER_LIST[i].tilePosition];
+        // packet[0] == username packet[1] == tilepos
         io.emit("playerPostionsFromServer", packet);
     }
 }

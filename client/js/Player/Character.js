@@ -3,6 +3,8 @@ function Character() {
     this.tilePosition = [1, 1];
     this.timeLastMoved = 0;
     this.MoveSpeed = 200;
+    this.timeLastAttacked = 0;
+    this.attackSpeed = 400;
 
     this.stats = {
         "level": 1,
