@@ -20,14 +20,6 @@ var lastFrameTime = 0; // time since last frame was drawing in mm
 
 var gameMap = getGameMap();
 
-// // for keyboard inputs
-// var keyDown = {
-//     37: false,
-//     38: false,
-//     39: false,
-//     40: false
-// };
-
 //var player = new Character();
 var player = new Character();
 
@@ -156,15 +148,18 @@ var listOf2s = [];
 */
 client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
 {  
+    // loop though all players in the local list 
     for (var i = 0; i < LocalPlayerList.length; i++) 
     {
         var testUserName = LocalPlayerList[i][0]
         if (testUserName == packet[0] && packet[0] != player.username)
-        {
+        {   
+            // save the last know location of this player.
             var localTilePos = LocalPlayerList[i][1]
-            console.log(localTilePos[0] != packet[1][0] || localTilePos[1] != packet[1][1]);
+            // check to see if that player has moved since the last update.
             if (localTilePos[0] != packet[1][0] || localTilePos[1] != packet[1][1])
-            {
+            {   // player has moved since the last update.
+                // so move them to the new location.
                 gameMap[localTilePos[0]][localTilePos[1]] = 0;
                 gameMap[packet[1][0]][packet[1][1]] = 2;
 
@@ -174,6 +169,9 @@ client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
                 LocalPlayerList[i][1] = packet[1];
             }
             
+            //else that player has not moved since the last updat.
+            // so we do not have to do anything.
+            
             return // we found the player that needs to be updated so we can are done
             // and we can now wait for the next packet to come.
         }
@@ -181,4 +179,13 @@ client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
     // if we are there then we need to add the to list.
     // as the this is a new player that has join the game.
     LocalPlayerList.push(packet);
+});
+
+client.on("PlayerDisconected", function RemoveDisconectedPlayerFromLocalPlayerList(disconectedPlayer){
+    console.log(disconectedPlayer.username)
+    playerPos = disconectedPlayer.tilePosition;
+    gameMap[playerPos[0]][playerPos[1]] = 0; // siance the player has left the game we need to remove them from the world.
+    // now remove them from the LocalPlayer.
+    // because we do not need to keep doing anything to them.
+    LocalPlayerList.splice( [disconectedPlayer.username, playerPos] );
 });

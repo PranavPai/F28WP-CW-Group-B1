@@ -4,6 +4,13 @@ function Character() {
     this.timeLastMoved = 0;
     this.MoveSpeed = 200;
 
+    this.stats = {
+        "level": 1,
+        "health": 100,
+        "attack": 10,
+        "defence": 5
+    } 
+
     LocalPlayerList.push([this.username, this.tilePosition]);
 
     client.emit("connectedusername", this.username, this.tilePosition);
@@ -29,3 +36,29 @@ Character.prototype.movePlayerTo = function (x, y) {
         player.timeLastMoved = Date.now();
     }
 };
+
+Character.prototype.DealDamage = function(targetPlayer){
+    // if the player has tryed to move onto a tile that has another player standing on it.
+    // then we want to damage that player.
+    Console.log(`Damage done: ${attack}`)
+}
+
+Character.prototype.TakeDamge = function(damageAmmount)
+{
+    // if another player has damaged us then we need to take that amount of damange
+    var damageTaken = damageAmmount - defence
+    this.Character.stats.health -= damageTaken;
+    console.log(`Damage Taken: ${damageTaken}`);
+
+    // after we have taken damage we need to check to see if we are dead.
+    // if our health is 0 then we need to kill the player
+
+    if (this.Character.stats.health <= 0)
+    {
+        console.log("YOU ARE DEAD");
+    }
+    
+    // TODO::: add in a death screan for the player to see
+    // -- Should include their score
+    // -- should also show the top 10 people on the server.
+}
