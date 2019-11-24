@@ -8,6 +8,11 @@ var CONNECTED_PLAYER_LIST = []; // list of Character Objects
 const express = require('express');
 const mongoose = require('mongoose');
 
+const passport = require('passport'),
+    LocalStrategy = require('passport-local').Strategy;
+
+const bcrypt = require('bcryptjs');
+
 var User = require('./server/js/models/user');
 // Create a new instance of Express
 const app = express();
@@ -52,26 +57,34 @@ var io = require('socket.io').listen(server);
 // ##################################################
 // DATABASE STUFF
 
-function addPlayer(player) {
-    player.save()
+// adds the passed user to the database, returns error if user exists
+async function addUser(passedUser) {
+    var newUser = new User(passedUser);
+    await newUser.save()
         .then(doc => {
             console.log(`Username: ${doc.username} : Player Added To Database`)
+            client.emit('loginstatus', true, "UserRegistered");
         })
         .catch(err => {
             if (err.code == 11000) {
+                client.emit('loginstatus', false, "UserAlreadyExists");
                 console.log(`Error: ${err.code} :: Player Already Exists`);
             } else {
-                console.error(err.code)
+                client.emit('loginstatus', false, err.errmsg);
+                console.error(err.code+": "+err.errmsg)
             }
         });
 }
 
-function getPlayer(passed_username) {
-    User.find({
+// returns the the user document from the database for the given username
+// returns a list, so use ( getUser(username)[0] ) to get object
+async function getUser(passed_username) {
+    await User.find({
             username: passed_username
         })
         .then(doc => {
-            console.log(`Username: ${passed_username} : Player Found In Database`)
+            console.log(`Username: ${passed_username} : Player Found In Database`);
+            console.log(doc);
             return doc
         })
         .catch(err => {
@@ -79,18 +92,38 @@ function getPlayer(passed_username) {
         });
 }
 
-function updatePlayer(player) {
-    pass
+// returns the highscore object from the database for the connected player
+async function getPlayerHighScore(connectedplayer) {
+    var user = await User.findOne({
+        username: connectedplayer.username
+    });
+    return user.highscore;
+}
+
+// updates the highscores in the database for the connected player
+async function updatePlayerHighScore(connectedplayer) {
+    var user = await User.findOne({
+        username: connectedplayer.username
+    });
+    user.highscore.highestNumberOfKills = connectedplayer.highscore.currentNumberOfKills;
+    user.highscore.highestLevel = connectedplayer.highscore.currentLevel;
+    user.highscore.longestTimeAlive = connectedplayer.highscore.currentTimeAlive;
+    await user.save();
 }
 
 // ###################################################
 
-
+// player object to store in memory
 var Player = function (id) {
     var self = {
         tilePosition: [-1, -1],
         username: "defaultplayer",
-        id: id
+        id: id,
+        highscore: {
+            currentNumberOfKills: 0,
+            currentLevel: 0,
+            currentTimeAlive: 0
+        }
     }
     return self;
 }
@@ -98,6 +131,41 @@ var Player = function (id) {
 var connectedplayer;
 
 io.on('connection', function (client) {
+
+    client.on('login', function (authpacket) {
+        // username = authpacket[0];
+        // password = authpacket[1];
+        User.findOne({
+            username: authpacket[0]
+        })
+        .then(doc => {
+            if (authpacket[1] == doc.password) {
+                client.emit('loginstatus', true, "LoginApproved");
+            } else {
+                client.emit('loginstatus', false, "IncorrectPassword");
+            }
+        })
+        .catch(err => {
+            client.emit('loginstatus', false, "UserNotFound");
+            console.error(err);
+        });
+    });
+
+    client.on('register', function (authpacket) {
+        console.log(authpacket);
+        var user = {
+            "username": authpacket[1],
+            "email": authpacket[0],
+            "password": authpacket[2],
+            "highscore": {
+                "highestNumberOfKills": 0,
+                "highestLevel": 0,
+                "longestTimeAlive": 0
+            }
+        };
+        addUser(user);
+    });
+
 
     // Gets called a new player joins the game
     client.on('connectedusername', function initPlayer(username, tilePos) {
@@ -109,7 +177,7 @@ io.on('connection', function (client) {
             CONNECTED_PLAYER_LIST.push(connectedplayer); // only add the new player if they do not exist in the list.
         }
     });
- 
+
     client.on('playerposition', function updatePlayerPosition(packet) {
         ClientNameToPlayerObject(packet[0]).tilePosition = packet[1];
     });
@@ -148,7 +216,6 @@ io.on('connection', function (client) {
 */
 setInterval(function () {
     UpdateAllConnectedClients();
-
 }, 1000 / 25);
 
 // ##############################################################################################
@@ -170,7 +237,7 @@ function UpdateAllConnectedClients() {
 function getPlayerFromPos(playerPos) {
     for (var index = 0; index < CONNECTED_PLAYER_LIST.length; index++) { // is the player in the list
         if (CONNECTED_PLAYER_LIST[index].tilePosition[0] == playerPos[0] &&
-             CONNECTED_PLAYER_LIST[index].tilePosition[1] == playerPos[1]) {
+            CONNECTED_PLAYER_LIST[index].tilePosition[1] == playerPos[1]) {
             return CONNECTED_PLAYER_LIST[index];
         }
     }

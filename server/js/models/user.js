@@ -24,22 +24,8 @@ let userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    firstname: {
-        type: String,
-        trim: true,
-        validate: (value) => {
-            return validator.isAlpha(value)
-        }
-    },
-    lastname: {
-        type: String,
-        trim: true,
-        validate: (value) => {
-            return validator.isAlpha(value)
-        }
-    },
     highscore: {
-        numberOfKills: {
+        highestNumberOfKills: {
             type: Number
         },
         highestLevel: {
@@ -48,9 +34,6 @@ let userSchema = new mongoose.Schema({
         longestTimeAlive: {
             type: Number
         }
-    },
-    isOnline: {
-        type: Boolean
     }
 })
 

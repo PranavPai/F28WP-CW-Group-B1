@@ -7,10 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" type="text/css" href="css/main.css">
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 </head>
 
-<body>
+<body> 
+
+  <script src="js/userauth.js"></script>
   <div class="limiter">
     <div class="title-box">
       <h1>Unnessacary Vaccuum</h1>
@@ -19,36 +21,27 @@
       <div class="login-wrap">
         <form id="login-form">
           <span class="login-form-title">
-            Player Login
+            SIGN IN
           </span>
 
-          <div class="login-input-wrap validate-input" data-validate="Valid email is required: ex@abc.xyz">
-            <input class="login-input" type="text" name="username" placeholder="Username">
+          <div class="login-input-wrap validate-input" data-validate="Username is required">
+            <input class="login-input" id="username" type="text" name="username" placeholder="Username">
             <span class="input-focus"></span>
           </div>
 
           <div class="login-input-wrap validate-input" data-validate="Password is required">
-            <input class="login-input" type="password" name="password" placeholder="Password">
+            <input class="login-input" id="password" type="password" name="password" placeholder="Password">
             <span class="input-focus"></span>
           </div>
 
           <div class="container-login-form-button">
-            <button class="login-form-button" onclick="location.href='html/game.html'" type="button">
-              Login
+            <button class="login-form-button" onclick="login();" type="button">
+              LOGIN
             </button>
           </div>
 
           <div class="login-text-center">
-            <span class="txt1">
-              Forgot
-            </span>
-            <a class="txt2" href="#">
-              Username / Password?
-            </a>
-          </div>
-
-          <div class="login-text-center">
-            <a class="txt2" href="#">
+            <a class="txt2" href="html/register.html">
               Create your Account
             </a>
           </div>
