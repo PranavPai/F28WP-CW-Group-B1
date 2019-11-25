@@ -183,9 +183,15 @@ io.on('connection', function (client) {
 
     client.on('disconnect', function () {
         disconectedPlayerIndex = ClientIDToPlayerListIndex(client.id)
-        // send an update message to all clients that this player has disconected.
-        io.emit("PlayerDisconected", CONNECTED_PLAYER_LIST[disconectedPlayerIndex]);
-        CONNECTED_PLAYER_LIST.splice(disconectedPlayerIndex);
+        if(disconectedPlayerIndex > -1)
+        {
+            // send an update message to all clients that this player has disconected.
+            io.emit("PlayerDisconected", CONNECTED_PLAYER_LIST[disconectedPlayerIndex]);
+            //#########################################################################################
+            console.log(disconectedPlayerIndex);
+            CONNECTED_PLAYER_LIST.splice(disconectedPlayerIndex);
+            disconectedPlayerIndex = -1;
+        }
     });
 
     // packet[0] is the player pos that is getting attacked.

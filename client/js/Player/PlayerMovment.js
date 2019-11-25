@@ -71,6 +71,7 @@ function CheckPlayerInput(posX, posY)
                 // now deal damage to that player.
                 player.DealDamage(playerToAttack);
             }
+            player.movePlayerTo(posX,posY);
         }
     }
 }

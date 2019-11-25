@@ -163,7 +163,6 @@ var listOf2s = [];
 client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
 {  // packet[0] == username packet[1] == tilepos
     // loop though all players in the local list 
-    
     if (packet[0] != player.username)
     {
         for (var i = 0; i < LocalPlayerList.length; i++) 
@@ -203,11 +202,14 @@ client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
 });
 
 client.on("PlayerDisconected", function RemoveDisconectedPlayerFromLocalPlayerList(disconectedPlayer){
-    //console.log(disconectedPlayer.username)
-    playerPos = disconectedPlayer.tilePosition;
-    gameMap[playerPos[0]][playerPos[1]] = 0; // siance the player has left the game we need to remove them from the world.
-    // now remove them from the LocalPlayer.
-    // because we do not need to keep doing anything to them.
-    LocalPlayerList.splice( [disconectedPlayer.username, playerPos] );
+    if (disconectedPlayer != undefined)
+    {
+        console.log(disconectedPlayer[1]);
+        playerPos = disconectedPlayer.tilePosition;
+        gameMap[playerPos[0]][playerPos[1]] = 0; // siance the player has left the game we need to remove them from the world.
+        // now remove them from the LocalPlayer.
+        // because we do not need to keep doing anything to them.
+        LocalPlayerList.splice( [disconectedPlayer.username, playerPos] );
+    }
 });
 
