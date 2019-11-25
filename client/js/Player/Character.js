@@ -20,6 +20,7 @@ function Character() {
     LocalPlayerList.push([this.username, this.tilePosition]);
 
     client.emit("connectedusername", this.username, this.tilePosition);
+    
 }
 
 
@@ -110,6 +111,7 @@ client.on("KilledAPlayer", function YouKilledAPlayer(you, playerYouKilled){
             player.stats.level++;
 
             console.log(`Level Up, level is now ${player.stats.level}`);
+            document.querySelector('.Level').textContent = "Level " + player.stats.level;
         }
         progressBars[1].setValue(player.stats.EXP);
     }
