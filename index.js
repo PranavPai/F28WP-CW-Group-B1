@@ -8,8 +8,6 @@ var CONNECTED_PLAYER_LIST = []; // list of Character Objects
 const express = require('express');
 const mongoose = require('mongoose');
 
-const passport = require('passport'),
-    LocalStrategy = require('passport-local').Strategy;
 
 const bcrypt = require('bcryptjs');
 
