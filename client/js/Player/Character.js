@@ -31,7 +31,15 @@ Character.prototype.placeAt = function(x,y) {
         this.tilePosition[0] = x;
         this.tilePosition[1] = y;
 
-        gameMap[x][y] = 2;
+        if (this.username == player.username)
+        {
+            gameMap[x][y] = 2; // this is the player
+        }
+        else 
+        {
+            // this is any pther random player.
+            gameMap[x][y] = 3;
+        }
         client.emit('playerposition', [this.username, this.tilePosition]);
     }
 };
