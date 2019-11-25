@@ -8,9 +8,6 @@ var CONNECTED_PLAYER_LIST = []; // list of Character Objects
 const express = require('express');
 const mongoose = require('mongoose');
 
-const passport = require('passport'),
-    LocalStrategy = require('passport-local').Strategy;
-
 const bcrypt = require('bcryptjs');
 
 var User = require('./server/js/models/user');
@@ -71,7 +68,7 @@ async function addUser(passedUser) {
                 console.log(`Error: ${err.code} :: Player Already Exists`);
             } else {
                 client.emit('loginstatus', false, err.errmsg);
-                console.error(err.code+": "+err.errmsg)
+                console.error(err.code + ": " + err.errmsg)
             }
         });
 }
@@ -136,27 +133,29 @@ io.on('connection', function (client) {
         // username = authpacket[0];
         // password = authpacket[1];
         User.findOne({
-            username: authpacket[0]
-        })
-        .then(doc => {
-            if (authpacket[1] == doc.password) {
-                client.emit('loginstatus', true, "LoginApproved");
-            } else {
-                client.emit('loginstatus', false, "IncorrectPassword");
-            }
-        })
-        .catch(err => {
-            client.emit('loginstatus', false, "UserNotFound");
-            console.error(err);
-        });
+                username: authpacket[0]
+            })
+            .then(doc => {
+                if (bcrypt.compareSync(authpacket[1], doc.password)) {
+                    client.emit('loginstatus', true, "LoginApproved");
+                } else {
+                    client.emit('loginstatus', false, "IncorrectPassword");
+                }
+            })
+            .catch(err => {
+                client.emit('loginstatus', false, "UserNotFound");
+                console.error(err);
+            });
     });
 
     client.on('register', function (authpacket) {
         console.log(authpacket);
+        var hashpass = bcrypt.hashSync(authpacket[2], 10);
+        console.log(hashpass);
         var user = {
             "username": authpacket[1],
             "email": authpacket[0],
-            "password": authpacket[2],
+            "password": hashpass,
             "highscore": {
                 "highestNumberOfKills": 0,
                 "highestLevel": 0,
@@ -207,6 +206,10 @@ io.on('connection', function (client) {
         {
             io.emit('KilledAPlayer', killer, killedPlayer);
         }
+    });
+
+    client.on('messageFromClient', function (messageFromClient) {
+        io.emit('chatMessageFromServer', messageFromClient);
     });
 });
 
@@ -266,12 +269,6 @@ function ClientIDToPlayerListIndex(id) {
         }
     }
     return -1;
-}
-
-// Chat Function
-function onClientSendMessage(messageFromClient) {
-    formatedMessage = client.username + ": " + messageFromClient;
-    gameSocket.emit('chatMessageFromServer', formatedMessage);
 }
 
 // --------------------------------------------------------------
