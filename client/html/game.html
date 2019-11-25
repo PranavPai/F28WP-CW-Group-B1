@@ -20,8 +20,8 @@
   <script src="../js/World/GameMap.js"></script>
   <script src="../js/World/TileMap.js"></script>
   <script src="../js/chat.js"></script>
- 
   <script src="../js/Player/ProgressBar.js"></script>
+  <script src="../js/aftergame.js"></script>
 
   <div class="grid-container">
 
@@ -32,18 +32,18 @@
     <script>
       var c = document.getElementById("gameCanvas");
       var ctx = c.getContext("2d");
-      ctx.canvas.width  = window.innerWidth * 0.8;
+      ctx.canvas.width = window.innerWidth * 0.8;
       ctx.canvas.height = window.innerHeight * 0.8;
     </script>
 
-  <div class="Stats">
-    
+    <div class="Stats">
+
       <h1 class="StatsText">Health</h1>
       <div class="HealthStatBar">
         <div class="HealthBarValue">65%</div>
         <div class="HealthBarFill"></div>
       </div>
-      
+
       <h1 class="StatsText">EXP</h1>
       <div class="EXPStatBar">
         <div class="EXPBarValue">65%</div>
@@ -55,35 +55,19 @@
         // index 0 HealthBar
         // index 1 EXPBar
         progressBars.push(new ProgressBar(document.querySelector('.HealthStatBar'),
-                                           100, ".HealthBarValue", ".HealthBarFill"));
-        progressBars.push(new ProgressBar(document.querySelector('.EXPStatBar'), 
-                                            0, ".EXPBarValue", ".EXPBarFill"));
+          100, ".HealthBarValue", ".HealthBarFill"));
+        progressBars.push(new ProgressBar(document.querySelector('.EXPStatBar'),
+          0, ".EXPBarValue", ".EXPBarFill"));
       </script>
+    </div>
 
-
-    <!-- <body>
-        <canvas id="StatsCanvase"></canvas>
-
-
-        <script>
-            var c = document.getElementById("StatsCanvas");
-            var ctx = c.getContext("2d");
-            ctx.canvas.width  = window.innerWidth * 0.2;
-            ctx.canvas.height = window.innerHeight * 0.8;
-            ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            ctx.fillStyle = "lightGray";
-            ctx.fill();
-          </script>
-    </body> -->
-  </div>
-
-  <div class="Chat">
+    <div class="Chat">
       <ul id="messages"></ul>
       <form action="">
         <input id="messageBox" autocomplete="off" /><button onclick="sendMessage();" type="button">Send</button>
       </form>
+    </div>
   </div>
-</div>
 </body>
 
 </html>

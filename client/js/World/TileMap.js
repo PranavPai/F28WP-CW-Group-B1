@@ -30,8 +30,8 @@ window.onload = function () {
 
     player.placeAt(Math.floor(gameMap.length / 2), Math.floor(gameMap.length / 2));
 
-    var canvase = this.document.getElementById('gameCanvas');
-    context = canvase.getContext('2d');
+    var canvas = this.document.getElementById('gameCanvas');
+    context = canvas.getContext('2d');
     requestAnimationFrame(drawGame);
     context.font = "bold 10pt sans.serif";
 
@@ -44,8 +44,8 @@ window.onload = function () {
 
     // Camera
     this.viewPort.screanSize = [
-        canvase.width,
-        canvase.height
+        canvas.width,
+        canvas.height
     ];
     // END Camera
 };
