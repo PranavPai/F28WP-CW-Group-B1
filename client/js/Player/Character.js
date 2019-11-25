@@ -14,7 +14,8 @@ function Character() {
         "maxHealth": 100,
         "health": 100,
         "attack": 50,
-        "defence": 5
+        "defence": 5,
+        "NumberOfKills": 0
     } 
 
     LocalPlayerList.push([this.username, this.tilePosition]);
@@ -113,6 +114,12 @@ client.on("KilledAPlayer", function YouKilledAPlayer(you, playerYouKilled){
             console.log(`Level Up, level is now ${player.stats.level}`);
             document.querySelector('.Level').textContent = "Level " + player.stats.level;
         }
+
+        player.stats.NumberOfKills++;
+        document.querySelector('.NumberOfKills').textContent = "Kills:  " + player.stats.NumberOfKills;
+        
+        
         progressBars[1].setValue(player.stats.EXP);
+
     }
 });
