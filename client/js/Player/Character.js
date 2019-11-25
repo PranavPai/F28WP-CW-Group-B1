@@ -82,8 +82,7 @@ Character.prototype.TakeDamge = function(packet)
 
     if (player.stats.health <= 0)
     {
-        console.log("YOU ARE DEAD");
-        alert("You are dead");
+        // console.log("YOU ARE DEAD");
 
         gameMap[player.tilePosition[0]][player.tilePosition[1]] = 0;
 
@@ -92,6 +91,7 @@ Character.prototype.TakeDamge = function(packet)
         progressBars[0].setValue(player.stats.maxHealth);
 
         client.emit('PlayerKill', packet[2], packet[0]);
+        alert("You are dead");
     }
     
     // TODO::: add in a death screan for the player to see
