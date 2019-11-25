@@ -15,6 +15,8 @@ class ProgressBar
         else if (newValue >= 100)
             newValue = 100
 
+        newValue = Math.floor(newValue);
+
         this.value = newValue; 
         this.Update();
     }

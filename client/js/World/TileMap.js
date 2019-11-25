@@ -107,7 +107,10 @@ function drawGame()
                     context.fillStyle = "#525e5e"; // if wall then fill with dark gray.
                     break;
                 case 2: // THIS is a player at the given tile.
-                    context.fillStyle = "#0000ff";
+                    context.fillStyle = "#d60dcc";
+                    break;
+                case 3: // Other Players
+                    context.fillStyle = "#0dd6d6";
                     break;
                 default:
                     context.fillStyle = "#18ad0a"; // else the tile is a path.   
@@ -175,7 +178,7 @@ client.on("playerPostionsFromServer", function UpdateAllPlayerPosition(packet)
                 {   // player has moved since the last update.
                     // so move them to the new location.
                     gameMap[ localTilePos[0] ][ localTilePos[1] ] = 0;
-                    gameMap[ packet[1][0] ][ packet[1][1] ] = 2;
+                    gameMap[ packet[1][0] ][ packet[1][1] ] = 3;
 
                     listOf2s.push(packet[1]);
                     listOf2s.push(localTilePos);
