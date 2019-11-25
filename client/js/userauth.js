@@ -1,13 +1,11 @@
 var authio = io()
 
-
 function login() {
     var username = document.getElementById("username").value;
     var password = document.getElementById("password").value;
     authio.emit('login', [username,password]);
     sessionStorage.setItem('username', username);
 }
-
 
 function register() {
     var email = document.getElementById("email").value
