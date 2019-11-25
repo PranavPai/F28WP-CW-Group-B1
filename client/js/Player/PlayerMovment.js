@@ -55,7 +55,7 @@ function CheckPlayerInput(posX, posY)
             gameMap[posX][posY] = 0
             player.movePlayerTo(LookTile[0],LookTile[1])
         }
-        else if (gameMap[LookTile[0]][LookTile[1]] == 2 
+        else if (gameMap[LookTile[0]][LookTile[1]] == 3 
             && player.timeLastAttacked + player.attackSpeed < Date.now())
         {
             player.timeLastAttacked = Date.now();
