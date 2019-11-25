@@ -83,7 +83,6 @@ Character.prototype.TakeDamge = function(packet)
     if (player.stats.health <= 0)
     {
         // console.log("YOU ARE DEAD");
-        
 
         gameMap[player.tilePosition[0]][player.tilePosition[1]] = 0;
 
