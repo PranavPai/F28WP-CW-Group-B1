@@ -136,7 +136,7 @@ io.on('connection', function (client) {
             username: authpacket[0]
         })
         .then(doc => {
-            if (authpacket[1] == doc.password) {
+            if (bcrypt.compareSync(authpacket[1], doc.password)) {
                 client.emit('loginstatus', true, "LoginApproved");
             } else {
                 client.emit('loginstatus', false, "IncorrectPassword");
@@ -150,10 +150,12 @@ io.on('connection', function (client) {
 
     client.on('register', function (authpacket) {
         console.log(authpacket);
+        var hashpass = bcrypt.hashSync(authpacket[2], 10);
+        console.log(hashpass);
         var user = {
             "username": authpacket[1],
             "email": authpacket[0],
-            "password": authpacket[2],
+            "password": hashpass,
             "highscore": {
                 "highestNumberOfKills": 0,
                 "highestLevel": 0,
